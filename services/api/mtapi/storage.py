@@ -1,12 +1,14 @@
 """S3-compatible object storage (Cloudflare R2 in production, MinIO locally). Browsers only ever get short-lived
 signed URLs; bucket credentials never leave the server.
 
-Key layout (retention is enforced by bucket lifecycle rules per prefix, see docs/OPERATIONS.md):
-  users/{user_id}/uploads/{upload_id}/{filename}      raw uploads            (1 day)
+Key layout. Lifecycle rules can only match prefixes, so each retention class has its own top-level prefix:
+  uploads/{user_id}/{upload_id}/{filename}            raw uploads            (bucket rule: expire after 1 day)
   users/{user_id}/jobs/{job_id}/source/{i}.{ext}      validated page images  (retention_days)
   users/{user_id}/jobs/{job_id}/intermediate/{i}.png  cleaned pages          (retention_days, editor needs them)
   users/{user_id}/jobs/{job_id}/output/{i}.jpg        translated pages       (retention_days)
   users/{user_id}/jobs/{job_id}/archive/{name}.zip    download archive       (retention_days)
+Job data is deleted by the app when a job expires (system.cleanup); a bucket rule on users/ at 2x the longest
+retention is the backstop. See docs/OPERATIONS.md.
 """
 
 from functools import lru_cache
@@ -84,7 +86,8 @@ def put_bytes(key: str, data: bytes, content_type: str) -> None:
 
 
 def delete_prefix(prefix: str) -> int:
-    assert prefix.startswith("users/") and prefix.endswith("/"), "refusing to delete outside a user prefix"
+    assert prefix.startswith(("users/", "uploads/")) and prefix.endswith("/") and prefix.count("/") >= 2, \
+        "refusing to delete outside a user prefix"
     deleted = 0
     for page in client().get_paginator("list_objects_v2").paginate(Bucket=bucket(), Prefix=prefix):
         keys = [{"Key": o["Key"]} for o in page.get("Contents", [])]

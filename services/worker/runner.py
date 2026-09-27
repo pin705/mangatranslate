@@ -32,10 +32,12 @@ from mtapi.db import SessionLocal, session_scope  # noqa: E402
 from mtapi.logs import setup_logging  # noqa: E402
 
 log = logging.getLogger("worker")
+ALIVE = Path(os.environ.get("WORKER_ALIVE_FILE", "/tmp/worker-alive"))  # container healthcheck reads its mtime
 STOP = threading.Event()
 
 
 def _heartbeat(worker_id: str, queues: list[str], task_id: int | None, done: int) -> None:
+    ALIVE.touch()
     with session_scope() as db:
         db.execute(insert(m.WorkerHeartbeat).values(worker_id=worker_id, queues=",".join(queues), tasks_done=done,
                                                     current_task_id=task_id)
@@ -54,6 +56,7 @@ def _renew_lease(task_id: int, worker_id: str, stop: threading.Event) -> None:
         try:
             with SessionLocal() as db:
                 queue.extend_lease(db, task_id, worker_id)
+            ALIVE.touch()
         except Exception:
             log.exception("lease renewal failed")
 

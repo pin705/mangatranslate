@@ -106,33 +106,3 @@ def pages_from_upload(name: str, data: bytes, max_pixels: int, max_pages: int) -
         return extract_archive(name, data, max_pixels, max_pages)
     return [check_image(name, data, max_pixels)]
 
-
-if __name__ == "__main__":  # self-check: python ingest.py
-    def zip_of(entries: dict[str, bytes], compress=zipfile.ZIP_DEFLATED) -> bytes:
-        buf = io.BytesIO()
-        with zipfile.ZipFile(buf, "w", compress) as z:
-            for n, d in entries.items():
-                z.writestr(n, d)
-        return buf.getvalue()
-
-    png = io.BytesIO()
-    Image.new("RGB", (64, 64), "white").save(png, "PNG")
-    png = png.getvalue()
-    ok = pages_from_upload("c.cbz", zip_of({"p10.png": png, "p2.png": png, "__MACOSX/x.png": b"x", "info.xml": b"<x/>"}),
-                           10**7, 100)
-    assert [p.name for p in ok] == ["p2.png", "p10.png"]
-    for bad in [zip_of({"../evil.png": png}), zip_of({"bomb.png": b"\0" * (50 * 1024 * 1024)}), b"GIF89a....",
-                zip_of({"fake.png": b"not an image"})]:
-        try:
-            pages_from_upload("x", bad, 10**7, 100)
-            raise AssertionError("accepted a bad upload")
-        except InvalidUpload:
-            pass
-    big = io.BytesIO()
-    Image.new("L", (5000, 5000)).save(big, "PNG")
-    try:
-        check_image("big.png", big.getvalue(), 10**7)
-        raise AssertionError("accepted an oversized image")
-    except InvalidUpload:
-        pass
-    print("ingest self-check ok")

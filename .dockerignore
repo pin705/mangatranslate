@@ -1,0 +1,17 @@
+**/.venv
+**/node_modules
+**/.next
+**/__pycache__
+**/*.pyc
+**/.pytest_cache
+**/.ruff_cache
+**/.env
+**/.env.*
+!**/.env.example
+samples
+.git
+services/worker/input
+services/worker/output
+services/worker/work
+services/worker/tests
+services/api/tests

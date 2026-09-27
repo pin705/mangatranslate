@@ -50,7 +50,7 @@ def create_upload(body: UploadIn, user: m.User = Depends(verified_user), db: DB 
         raise AppError(400, "LIMIT_EXCEEDED", f"Files must be smaller than {get_settings().max_upload_mb} MB.")
     content_type = ALLOWED[ext]  # never trust the client's MIME type; bytes are checked again by the worker
     upload_id = uuid.uuid4()
-    key = f"users/{user.id}/uploads/{upload_id}/{name}"
+    key = f"uploads/{user.id}/{upload_id}/{name}"
     db.add(m.Upload(id=upload_id, user_id=user.id, object_key=key, filename=name, size=body.size,
                     content_type=content_type))
     db.commit()

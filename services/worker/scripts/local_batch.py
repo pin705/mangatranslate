@@ -309,32 +309,8 @@ class LocalMain:
 # ─────────────────────────────────────────────────────────────────────────────
 # Temizleme reçetesi: YOLOv8 metin segmentasyonu + balon-içi Otsu + block-aware LaMa
 # ─────────────────────────────────────────────────────────────────────────────
-_SEGMENTER = None
 _LAMA = None
 _MODEL_LOCK = threading.Lock()
-
-
-def _get_segmenter():
-    """ogkalu comic-text-segmenter (YOLOv8) — pixel-level metin maskesi. Thread-safe lazy init.
-
-    Önemli: YOLO modeli ilk inference'da kendini fuse eder (Conv+BN birleştirip
-    'bn' attribute'unu siler). Birden fazla worker thread aynı anda ilk kez
-    çağırırsa fuse race oluşur ("'Conv' object has no attribute 'bn'"). Bunu
-    önlemek için modeli lock İÇİNDE bir kez ısıtıp fuse'u tetikliyoruz ve
-    _SEGMENTER'ı ancak ondan SONRA set ediyoruz."""
-    global _SEGMENTER
-    if _SEGMENTER is None:
-        with _MODEL_LOCK:
-            if _SEGMENTER is None:
-                from ultralytics import YOLO
-                from modules.utils.download import ModelDownloader, ModelID
-                ModelDownloader.get(ModelID.COMIC_TEXT_SEGMENTER)
-                path = ModelDownloader.primary_path(ModelID.COMIC_TEXT_SEGMENTER)
-                model = YOLO(str(path))
-                # Warm-up: fuse'u tek thread'de tetikle (paralel kullanım öncesi)
-                model.predict(np.zeros((640, 640, 3), np.uint8), verbose=False, imgsz=640)
-                _SEGMENTER = model
-    return _SEGMENTER
 
 
 def _get_lama():
@@ -358,17 +334,9 @@ def build_segmenter_mask(image: np.ndarray, blocks=None) -> np.ndarray:
     close_k = int(os.environ.get("MASK_CLOSE", "13"))
     dilate_k = int(os.environ.get("MASK_DILATE", "13"))
 
-    segmenter = _get_segmenter()
-    res = segmenter.predict(image[..., ::-1], conf=conf, verbose=False, imgsz=1024)
-    seg = np.zeros((h, w), np.uint8)
-    for r in res:
-        if r.masks is None:
-            continue
-        for s in r.masks.data:
-            sm = s.cpu().numpy().astype(np.uint8) * 255
-            if sm.shape[:2] != (h, w):
-                sm = cv2.resize(sm, (w, h), interpolation=cv2.INTER_NEAREST)
-            seg[sm > 127] = 255
+    from modules.segmentation import text_mask
+
+    seg = text_mask(image, blocks, conf)  # ONNX Runtime; no AGPL ultralytics at runtime
     if seg.sum() == 0:
         return seg
 

@@ -276,6 +276,7 @@ def user_purge(task) -> None:
                                                   m.Job.status.not_in(jobs.TERMINAL))).scalars().all():
             jobs.cancel(db, job)
     storage.delete_prefix(f"users/{task.user_id}/")
+    storage.delete_prefix(f"uploads/{task.user_id}/")
     with session_scope() as db:
         db.execute(delete(m.Upload).where(m.Upload.user_id == task.user_id))
         db.execute(delete(m.Session).where(m.Session.user_id == task.user_id))
