@@ -42,6 +42,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 import imkit as imk
+import unicodedata
 import numpy as np
 from PySide6 import QtCore, QtWidgets
 from PySide6.QtGui import QColor, QFontDatabase
@@ -66,6 +67,9 @@ from scripts.storage import delete_prefix, download_prefix, normalize_key, uploa
 IMAGE_EXTS = {".jpg", ".jpeg", ".png", ".webp", ".bmp"}
 DEFAULT_STAMP_PATH = ROOT / "assets" / "brand-stamp.png"
 _STAMP_WARNING_PRINTED = False
+
+
+OPENAI_CHAT_URL = os.environ.get("OPENAI_BASE_URL", "https://api.openai.com/v1").rstrip("/") + "/chat/completions"
 
 
 def load_env(path: Path) -> None:
@@ -605,7 +609,7 @@ def recover_empty_bubble_text_with_gpt(image: np.ndarray, blocks, args: argparse
     model = MODEL_MAP.get(args.translator, os.environ.get("OPENAI_MODEL", "gpt-5.4-mini"))
     try:
         response = requests.post(
-            "https://api.openai.com/v1/chat/completions",
+            OPENAI_CHAT_URL,
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
             data=json.dumps(
                 {
@@ -696,8 +700,10 @@ def _latin_signal_ratio(text: str) -> float:
     return len(latin) / max(1, len(compact))
 
 
-def drop_non_english_ocr_blocks(blocks):
-    """Ignore raw CJK/Hangul SFX so it is neither cleaned nor translated."""
+def drop_non_english_ocr_blocks(blocks, source_lang: str):
+    """Ignore raw CJK/Hangul SFX so it is neither cleaned nor translated (English sources only)."""
+    if (source_lang or "").lower() not in {"english", "en"}:
+        return blocks
     if os.environ.get("DROP_NON_ENGLISH_OCR_BLOCKS", "true").lower() != "true":
         return blocks
     kept = []
@@ -807,7 +813,7 @@ def looks_like_noisy_ocr(text: str, source_lang: str) -> bool:
     if len(compact) <= 2:
         return False
     letters = [char for char in compact if char.isalpha()]
-    bad_symbols = [char for char in compact if not char.isalnum() and char not in ".,!?…'\"-~"]
+    bad_symbols = [char for char in compact if not char.isalnum() and not unicodedata.category(char).startswith("P") and char not in "~"]
     if len(bad_symbols) / max(1, len(compact)) >= 0.18:
         return True
     if re.search(r"[=$\\{}<>_|]{1,}", compact):
@@ -838,7 +844,7 @@ def suppress_noisy_ocr_blocks(blocks, source_lang: str) -> None:
 
 def strip_translation_garbage_letters(blocks) -> None:
     """Remove isolated OCR garbage that otherwise renders as stray T/L/Y marks."""
-    if os.environ.get("STRIP_TRANSLATION_GARBAGE_LETTERS", "true").lower() != "true":
+    if os.environ.get("STRIP_TRANSLATION_GARBAGE_LETTERS", "false").lower() != "true":
         return
 
     garbage = os.environ.get("TRANSLATION_GARBAGE_LETTERS", "T L Y H I E LL").split()
@@ -1277,7 +1283,7 @@ def process_image(path: Path, output_dir: Path, args: argparse.Namespace) -> Pat
     ocr.initialize(main, args.source_lang)
     ocr.process(image, blocks)
     recover_empty_bubble_text_with_gpt(image, blocks, args)
-    blocks = drop_non_english_ocr_blocks(blocks)
+    blocks = drop_non_english_ocr_blocks(blocks, args.source_lang)
     blocks = prune_ocr_blocks(blocks, image)
     strip_translation_garbage_letters(blocks)
     blocks = sort_blk_list(blocks, right_to_left=args.source_lang == "Japanese")
@@ -1408,7 +1414,7 @@ def _stage_detect_ocr(task: tuple) -> tuple:
     n_empty_after_ocr = sum(1 for b in blocks if getattr(b, "text_class", None) == "text_bubble" and not (getattr(b, "text", "") or "").strip())
     recover_empty_bubble_text_with_gpt(image, blocks, args)
     n_before_filters = len(blocks)
-    blocks = drop_non_english_ocr_blocks(blocks)
+    blocks = drop_non_english_ocr_blocks(blocks, args.source_lang)
     n_after_non_english = len(blocks)
     blocks = prune_ocr_blocks(blocks, image)
     n_after_prune = len(blocks)
@@ -1458,7 +1464,7 @@ def detect_ad_regions(pending: list, args: argparse.Namespace) -> dict:
     (top%, bottom%) döndürür: üstten/alttan ne kadarının reklam olduğu. Böylece
     reklam üstte de altta da olsa sadece o bölge kırpılır, ortadaki içerik kalır.
     Her çağrının token kullanımı loglanır (maliyet ölçümü)."""
-    if os.environ.get("AD_VISION_ENABLED", "true").lower() != "true":
+    if os.environ.get("AD_VISION_ENABLED", "false").lower() != "true":
         return {}
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if not api_key:
@@ -1483,7 +1489,7 @@ def detect_ad_regions(pending: list, args: argparse.Namespace) -> dict:
                 im.save(buf, format="JPEG", quality=80)
             b64 = base64.b64encode(buf.getvalue()).decode("ascii")
             resp = requests.post(
-                "https://api.openai.com/v1/chat/completions",
+                OPENAI_CHAT_URL,
                 headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
                 data=json.dumps({
                     "model": model,
@@ -1542,8 +1548,7 @@ def _batch_translate_all(page_results: list, args: argparse.Namespace) -> None:
         return
 
     api_key = os.environ.get("OPENAI_API_KEY", "")
-    model = MODEL_MAP.get(args.translator, "gpt-5.4-mini")
-    own_brand = os.environ.get("SEO_SITE_NAME", "TrendManga")
+    model = os.environ.get("OPENAI_MODEL") or MODEL_MAP.get(args.translator, "gpt-5.4-mini")
     system_prompt = (
         f"You are an expert translator who translates {args.source_lang} to {args.target_lang}. "
         f"You pay attention to style, formality, idioms, slang etc and try to convey it in the way "
@@ -1551,17 +1556,7 @@ def _batch_translate_all(page_results: list, args: argparse.Namespace) -> None:
         f"BE MORE NATURAL. NEVER USE 당신, 그녀, 그 or its Japanese equivalents.\n"
         f"You will translate text OCR'd from a comic. The OCR is not always perfect.\n"
         f"Return only the JSON with translated values. Do NOT translate the keys. "
-        f"If a block is already in {args.target_lang} or looks like gibberish, output it as-is.\n"
-        f"AD DETECTION: Mark scanlation/fansub promo blocks as ads — do NOT "
-        f"translate them; output exactly the string \"[[AD]]\" as that block's "
-        f"value. A block is an AD if it contains ANY of: a website/domain name "
-        f"(e.g. something.com / .net / .org / .gg), a URL or invite/link code "
-        f"(discord.gg/xxx, /AbCdEf123), a QR/scan instruction, or it pitches "
-        f"reading chapters elsewhere ('read/continue at...', 'premium/advance "
-        f"chapters', 'more at our site', 'join/support us'). THIS APPLIES EVEN IF "
-        f"the text is phrased like in-story dialogue — real comic dialogue NEVER "
-        f"contains real-world website domains or invite links. "
-        f"'{own_brand}' is our OWN brand; never mark our own brand as an ad."
+        f"If a block is already in {args.target_lang} or looks like gibberish, output it as-is."
     )
 
     batch_size = int(os.environ.get("BATCH_TRANSLATE_SIZE", "400"))
@@ -1579,7 +1574,7 @@ def _batch_translate_all(page_results: list, args: argparse.Namespace) -> None:
             f"{json.dumps(batch_dict, ensure_ascii=False, indent=2)}"
         )
         resp = requests.post(
-            "https://api.openai.com/v1/chat/completions",
+            OPENAI_CHAT_URL,
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
             data=json.dumps({
                 "model": model,
@@ -1835,7 +1830,7 @@ def _rate_translation_quality(page_results: list, args: argparse.Namespace) -> f
 
     sample = random.sample(pairs, min(int(os.environ.get("QUALITY_SCORE_SAMPLE", "20")), len(pairs)))
     sample_json = json.dumps([{"source": s, "translation": t} for s, t in sample], ensure_ascii=False)
-    model = MODEL_MAP.get(args.translator, "gpt-5.4-mini")
+    model = os.environ.get("OPENAI_MODEL") or MODEL_MAP.get(args.translator, "gpt-5.4-mini")
     prompt = (
         f"Rate the quality of each {args.source_lang}→{args.target_lang} translation on a scale "
         f"of 1 (bad) to 5 (perfect). Consider accuracy, naturalness, and style. "
@@ -1843,7 +1838,7 @@ def _rate_translation_quality(page_results: list, args: argparse.Namespace) -> f
     )
     try:
         resp = requests.post(
-            "https://api.openai.com/v1/chat/completions",
+            OPENAI_CHAT_URL,
             headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
             data=json.dumps({
                 "model": model,
@@ -1970,7 +1965,7 @@ def process_all_batched(images: list[Path], output_dir: Path, args: argparse.Nam
     print(f"[BATCH] clean bitti: {time.perf_counter()-t3:.1f}s", flush=True)
 
     # ── Faz 3b: Sequential render + save (Qt main thread) ───────────────────
-    skip_full_ad = os.environ.get("SKIP_FULL_AD_PAGES", "true").lower() == "true"
+    skip_full_ad = os.environ.get("SKIP_FULL_AD_PAGES", "false").lower() == "true"
     failed = 0
     for idx, path, image, blocks, cleaned in clean_results:
         # GPT-Vision baştan sona reklam dedi (kırpınca içerik kalmıyor) -> atla.
@@ -2113,14 +2108,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-font-size", type=int, default=int(os.environ.get("MAX_FONT_SIZE", "58")))
     parser.add_argument("--suffix", default=os.environ.get("OUTPUT_SUFFIX", "_translated"))
     parser.add_argument("--output-format", default=os.environ.get("OUTPUT_FORMAT", "webp"), choices=["source", "webp", "png", "jpg", "jpeg"])
-    parser.add_argument("--stamp-enabled", default=os.environ.get("STAMP_ENABLED", "true"), choices=["true", "false"])
+    parser.add_argument("--stamp-enabled", default=os.environ.get("STAMP_ENABLED", "false"), choices=["true", "false"])
     parser.add_argument("--stamp-path", default=os.environ.get("STAMP_PATH", str(DEFAULT_STAMP_PATH)))
     parser.add_argument("--stamp-every-pages", type=int, default=int(os.environ.get("STAMP_EVERY_PAGES", "5")))
     parser.add_argument("--stamp-opacity", type=float, default=float(os.environ.get("STAMP_OPACITY", "1.0")))
     parser.add_argument("--stamp-width-ratio", type=float, default=float(os.environ.get("STAMP_WIDTH_RATIO", "0.2")))
     parser.add_argument("--stamp-black-background", default=os.environ.get("STAMP_BLACK_BACKGROUND", "false"), choices=["true", "false"])
     parser.add_argument("--gpu", action="store_true", default=os.environ.get("USE_GPU", "false").lower() == "true")
-    parser.add_argument("--uppercase", action=argparse.BooleanOptionalAction, default=os.environ.get("UPPERCASE", "true").lower() == "true")
+    parser.add_argument("--uppercase", action=argparse.BooleanOptionalAction, default=os.environ.get("UPPERCASE", "false").lower() == "true")
     parser.add_argument("--no-outline", action="store_true", default=os.environ.get("NO_OUTLINE", "false").lower() == "true")
     parser.add_argument("--r2-input-prefix", default=os.environ.get("R2_INPUT_PREFIX", ""))
     parser.add_argument("--r2-output-prefix", default=os.environ.get("R2_OUTPUT_PREFIX", ""))

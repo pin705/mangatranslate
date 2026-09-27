@@ -156,7 +156,8 @@ class GPTTranslation(BaseLLMTranslation):
         self.model_name = model_name
         credentials = settings.get_credentials(settings.ui.tr('Open AI GPT'))
         self.api_key = credentials.get('api_key', '') or os.environ.get("OPENAI_API_KEY", "")
-        self.model = MODEL_MAP.get(self.model_name)
+        self.model = os.environ.get("OPENAI_MODEL") or MODEL_MAP.get(self.model_name)
+        self.api_base_url = os.environ.get("OPENAI_BASE_URL", self.api_base_url).rstrip("/")
 
         if not self.api_key:
             raise RuntimeError(

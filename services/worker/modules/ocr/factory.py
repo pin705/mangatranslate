@@ -13,7 +13,7 @@ class OCRFactory:
         cache_key = cls._create_cache_key(ocr_model, source_lang_english, settings)
         if cache_key in cls._engines:
             return cls._engines[cache_key]
-        engine = cls._create_new_engine(settings, ocr_model)
+        engine = cls._create_new_engine(settings, ocr_model, source_lang_english)
         cls._engines[cache_key] = engine
         return engine
 
@@ -28,7 +28,7 @@ class OCRFactory:
         return f"{base}_{digest}"
 
     @classmethod
-    def _create_new_engine(cls, settings, ocr_model: str) -> OCREngine:
+    def _create_new_engine(cls, settings, ocr_model: str, source_lang: str) -> OCREngine:
         qwen_models = {
             'Qwen3-VL-Flash Grid OCR': 'qwen3-vl-flash',
             'Qwen3-VL-Plus Grid OCR': 'qwen3-vl-plus',
@@ -38,6 +38,6 @@ class OCRFactory:
         if ocr_model in qwen_models:
             credentials = settings.get_credentials("Qwen")
             engine = QwenGridOCR()
-            engine.initialize(api_key=credentials.get("api_key", ""), model=qwen_models[ocr_model])
+            engine.initialize(api_key=credentials.get("api_key", ""), model=qwen_models[ocr_model], source_lang=source_lang)
             return engine
         raise ValueError(f"Unsupported OCR model: {ocr_model!r}. Supported: {list(qwen_models)}")

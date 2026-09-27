@@ -29,9 +29,11 @@ class QwenGridOCR(OCREngine):
         self.output_price_per_1m = 0.40
 
     def initialize(self, api_key: str = "", model: str = "qwen3-vl-flash", **kwargs) -> None:
-        self.api_key = api_key or os.environ.get("DASHSCOPE_API_KEY", "")
-        self.model = model
-        self.api_base_url = os.environ.get("DASHSCOPE_BASE_URL", self.api_base_url).rstrip("/") + "/chat/completions"
+        self.source_lang = kwargs.get("source_lang") or "English"
+        self.api_key = api_key or os.environ.get("OCR_API_KEY") or os.environ.get("DASHSCOPE_API_KEY", "")
+        self.model = os.environ.get("OCR_MODEL") or model
+        base_url = os.environ.get("OCR_BASE_URL") or os.environ.get("DASHSCOPE_BASE_URL") or self.api_base_url.removesuffix("/chat/completions")
+        self.api_base_url = base_url.rstrip("/") + "/chat/completions"
         if self.api_base_url.endswith("/v1/chat/completions/chat/completions"):
             self.api_base_url = self.api_base_url.replace("/chat/completions/chat/completions", "/chat/completions")
         self.max_tokens = int(kwargs.get("max_tokens", os.environ.get("QWEN_GRID_OCR_MAX_TOKENS", "2500")))
@@ -42,19 +44,20 @@ class QwenGridOCR(OCREngine):
         if not blk_list:
             return blk_list
         if not self.api_key:
-            raise ValueError("DASHSCOPE_API_KEY is missing for QwenGridOCR.")
+            raise ValueError("OCR_API_KEY (or DASHSCOPE_API_KEY) is missing for grid OCR.")
 
         sheet, id_to_idx = self._make_sheet(img, blk_list)
         if sheet is None:
             return blk_list
 
         prompt = (
-            "You are an OCR engine for comic/webtoon text crops. "
+            f"You are an OCR engine for {self.source_lang} comic/webtoon text crops. "
             "The image is a contact sheet. Each crop has a yellow ID label like ID 1, ID 2, etc. "
             "Read ONLY the comic text inside each crop, not the yellow ID label. Do NOT translate. "
-            "Only return English/Latin alphabet dialogue, narration, and signs. "
-            "If the crop is Korean, Japanese, Chinese, raw SFX, watermark text, or has no readable English text, return an empty string. "
-            "Preserve the original wording as much as possible. Use spaces instead of line breaks. "
+            f"Return the {self.source_lang} dialogue, narration, and signs exactly as written, "
+            "including vertical text (read it top-to-bottom, right-to-left columns). "
+            "Return an empty string for crops that are only sound effects, watermarks, or unreadable. "
+            "Join multiple lines into one line; add spaces only if the language uses spaces between words. "
             "If a crop has no readable text, return an empty string for it. "
             'Return strict JSON only: [{"id":1,"text":"..."},{"id":2,"text":"..."}].'
         )
@@ -195,7 +198,8 @@ class QwenGridOCR(OCREngine):
 
     @staticmethod
     def _font(size: int) -> ImageFont.ImageFont:
-        for path in [r"C:\Windows\Fonts\arialbd.ttf", r"C:\Windows\Fonts\arial.ttf"]:
+        bundled = os.path.join(os.path.dirname(__file__), "..", "..", "assets", "fonts", "Mali-Medium.ttf")
+        for path in [bundled, r"C:\Windows\Fonts\arialbd.ttf", r"C:\Windows\Fonts\arial.ttf"]:
             try:
                 return ImageFont.truetype(path, size=size)
             except Exception:
