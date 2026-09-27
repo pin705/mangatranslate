@@ -31,7 +31,7 @@ jobs:
           docker build -f infra/docker/worker.Dockerfile --build-arg SEGMENTER_ONNX_URL="${{ secrets.SEGMENTER_ONNX_URL }}" -t $REGISTRY/worker:$TAG .
           docker build --build-arg ORT_PACKAGE="onnxruntime-gpu[cuda,cudnn]==1.24.4" -f infra/docker/worker.Dockerfile \
             --build-arg SEGMENTER_ONNX_URL="${{ secrets.SEGMENTER_ONNX_URL }}" -t $REGISTRY/worker-gpu:$TAG .
-          docker build -t $REGISTRY/web:$TAG apps/web
+          docker build --build-arg API_URL=http://api:8000 --build-arg NEXT_PUBLIC_SITE_URL="${{ vars.SITE_URL }}" -t $REGISTRY/web:$TAG apps/web
           for i in api worker worker-gpu web; do docker push $REGISTRY/$i:$TAG; done
 
   staging:

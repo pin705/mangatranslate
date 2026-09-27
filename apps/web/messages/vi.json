@@ -1,0 +1,950 @@
+{
+  "common": {
+    "loading": "Đang tải…",
+    "retry": "Thử lại",
+    "errorTitle": "Đã xảy ra lỗi",
+    "cancel": "Hủy",
+    "pagination": "Phân trang",
+    "range": "{from}–{to} trên {total}",
+    "previous": "Trước",
+    "next": "Sau",
+    "all": "Tất cả"
+  },
+  "errors": {
+    "title": "Đã xảy ra lỗi",
+    "generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
+    "network": "Không thể kết nối tới máy chủ. Hãy kiểm tra kết nối mạng và thử lại.",
+    "retry": "Thử lại"
+  },
+  "nav": {
+    "skip": "Chuyển đến nội dung chính",
+    "main": "Điều hướng chính",
+    "menu": "Menu",
+    "features": "Tính năng",
+    "pricing": "Bảng giá",
+    "faq": "Câu hỏi thường gặp",
+    "login": "Đăng nhập",
+    "register": "Đăng ký",
+    "dashboard": "Bảng điều khiển",
+    "jobs": "Tác vụ",
+    "newJob": "Dịch mới",
+    "billing": "Thanh toán",
+    "usage": "Lịch sử sử dụng",
+    "settings": "Cài đặt",
+    "admin": "Quản trị",
+    "logout": "Đăng xuất",
+    "account": "Tài khoản",
+    "creditsLabel": "{count, plural, other {# credit}} — mở trang thanh toán",
+    "language": "Ngôn ngữ",
+    "languageNames": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    }
+  },
+  "footer": {
+    "label": "Chân trang",
+    "features": "Tính năng",
+    "pricing": "Bảng giá",
+    "faq": "Câu hỏi thường gặp",
+    "terms": "Điều khoản",
+    "privacy": "Quyền riêng tư",
+    "copyright": "Bản quyền & báo cáo vi phạm",
+    "rights": "© {year} {name}"
+  },
+  "meta": {
+    "home": {
+      "title": "MangaTranslate AI — Dịch manga, manhwa và manhua bằng AI",
+      "description": "Biến các trang manga, manhwa và manhua thành ảnh đã dịch sạch đẹp chỉ trong vài phút. Nhận dạng chữ, dịch theo ngữ cảnh, xóa chữ và chèn chữ trong một nơi."
+    },
+    "pricing": {
+      "title": "Bảng giá",
+      "description": "Trả theo trang bằng credit. Xem các gói credit, chi phí mỗi trang, ngôn ngữ hỗ trợ và giới hạn."
+    },
+    "features": {
+      "title": "Tính năng",
+      "description": "Nhận dạng chữ, dịch theo ngữ cảnh với bảng thuật ngữ, xóa chữ, chèn chữ, dịch cả chương và trình chỉnh sửa từng khung thoại."
+    },
+    "faq": {
+      "title": "Câu hỏi thường gặp",
+      "description": "Giải đáp về độ chính xác, định dạng tệp, credit, thời gian lưu trữ tệp và quyền đối với nội dung."
+    },
+    "terms": {
+      "title": "Điều khoản dịch vụ",
+      "description": "Các điều khoản khi sử dụng MangaTranslate AI."
+    },
+    "privacy": {
+      "title": "Chính sách quyền riêng tư",
+      "description": "MangaTranslate AI thu thập dữ liệu gì và sử dụng như thế nào."
+    },
+    "copyright": {
+      "title": "Bản quyền & báo cáo vi phạm",
+      "description": "Cách báo cáo vi phạm bản quyền hoặc lạm dụng trên MangaTranslate AI."
+    },
+    "login": {
+      "title": "Đăng nhập",
+      "description": "Đăng nhập vào MangaTranslate AI."
+    },
+    "register": {
+      "title": "Tạo tài khoản",
+      "description": "Tạo tài khoản MangaTranslate AI và nhận credit miễn phí sau khi xác minh email."
+    }
+  },
+  "home": {
+    "heroTitle": "Dịch truyện tranh bằng AI",
+    "heroSubtitle": "Biến các trang manga, manhwa và manhua thành ảnh đã dịch sạch đẹp chỉ trong vài phút.",
+    "heroNote": "Từ tiếng Trung, tiếng Hàn và tiếng Nhật sang tiếng Việt hoặc tiếng Anh. Xem lại và chỉnh từng khung thoại trước khi tải về.",
+    "cta": "Bắt đầu dịch",
+    "seePricing": "Xem bảng giá",
+    "showcaseTitle": "Từ trang gốc đến trang sạch chữ",
+    "showcaseBody": "Bước đầu tiên của mọi bản dịch: phát hiện chữ và dựng lại phần hình ảnh phía sau, sẵn sàng để chèn chữ.",
+    "original": "Bản gốc",
+    "originalAlt": "Trang truyện tranh gốc với các khung thoại có chữ",
+    "textRemoved": "Đã xóa chữ",
+    "cleanAlt": "Cùng trang truyện tranh sau khi đã xóa chữ khỏi các khung thoại",
+    "credit": "Tranh minh họa: Pepper&Carrot của David Revoy (CC-BY 4.0)",
+    "stepsTitle": "Cách hoạt động",
+    "steps": {
+      "ocr": {
+        "title": "Nhận dạng chữ (OCR)",
+        "body": "Tìm khung thoại, chú thích, lời dẫn và đọc nội dung chữ gốc."
+      },
+      "translate": {
+        "title": "Dịch theo ngữ cảnh",
+        "body": "Dịch dựa trên ngữ cảnh của cả trang và tuân theo bảng thuật ngữ của bạn cho tên riêng, danh xưng."
+      },
+      "clean": {
+        "title": "Làm sạch nền",
+        "body": "Xóa chữ gốc và vẽ lại phần nền, hoặc che chữ ở chế độ phủ nhanh hơn."
+      },
+      "typeset": {
+        "title": "Chèn chữ",
+        "body": "Đặt bản dịch vừa vào từng khung thoại. Bạn có thể đổi cỡ chữ, căn lề và màu trong trình chỉnh sửa."
+      },
+      "batch": {
+        "title": "Dịch cả chương",
+        "body": "Tải lên cả chương dưới dạng ảnh hoặc tệp ZIP/CBZ và tải kết quả về dưới dạng ZIP hoặc CBZ."
+      }
+    },
+    "expectTitle": "Những điều nên biết",
+    "expect": [
+      "Dịch bằng AI rất nhanh nhưng không hoàn hảo. Các trang có độ tin cậy thấp sẽ được đánh dấu để bạn xem lại trước.",
+      "Hiệu ứng âm thanh cách điệu và chữ viết tay là những trường hợp khó nhất, có thể cần sửa thủ công.",
+      "Bạn chỉ trả credit cho các trang được xử lý thành công.",
+      "Chỉ tải lên nội dung bạn sở hữu hoặc có quyền dịch."
+    ]
+  },
+  "pricing": {
+    "title": "Bảng giá",
+    "subtitle": "Mua credit và dùng cho từng trang được dịch. Không cần đăng ký gói tháng.",
+    "free": {
+      "title": "Miễn phí",
+      "desc": "Được cộng một lần khi bạn xác minh email.",
+      "cta": "Tạo tài khoản miễn phí"
+    },
+    "credits": "{count, plural, other {# credit}}",
+    "approxPages": "≈ {count, plural, other {# trang}} ở chế độ xóa chữ",
+    "perCredit": "{price} mỗi credit",
+    "buy": "Mua",
+    "noProducts": "Hiện chưa có gói credit nào.",
+    "details": "Chi tiết",
+    "perPageClean": "Credit mỗi trang — chế độ xóa chữ",
+    "perPageOverlay": "Credit mỗi trang — chế độ phủ chữ",
+    "sourceLanguages": "Ngôn ngữ nguồn",
+    "targetLanguages": "Ngôn ngữ đích",
+    "maxPages": "Số trang tối đa mỗi tác vụ",
+    "maxUpload": "Dung lượng tối đa mỗi tệp",
+    "megabytes": "{mb} MB",
+    "concurrentJobs": "Số tác vụ chạy cùng lúc",
+    "retention": "Thời gian lưu tệp",
+    "days": "{count, plural, other {# ngày}}",
+    "howCreditsWork": "Credit được tính như thế nào",
+    "notes": [
+      "Credit được tạm giữ khi đã biết số trang của chương và được hoàn lại cho những trang bị lỗi.",
+      "Chỉ tính phí các trang được xử lý thành công.",
+      "Chèn chữ lại trong trình chỉnh sửa là miễn phí; dịch lại hoặc làm sạch lại một trang có giá bằng một trang.",
+      "Credit đã mua sẽ được cộng khi nhà cung cấp thanh toán xác nhận giao dịch."
+    ]
+  },
+  "features": {
+    "title": "Tính năng",
+    "intro": "Mọi thứ bạn cần để biến một chương truyện gốc thành bản dịch dễ đọc — và sửa những chỗ AI làm chưa đúng.",
+    "cta": "Bắt đầu dịch",
+    "sections": [
+      {
+        "h": "Dành cho manga, manhwa và manhua",
+        "p": [
+          "Dịch các trang tiếng Trung, tiếng Hàn và tiếng Nhật sang tiếng Việt hoặc tiếng Anh. Danh sách ngôn ngữ hiện có luôn được hiển thị trên trang bảng giá."
+        ]
+      },
+      {
+        "h": "Hai chế độ xuất",
+        "p": [
+          "Chế độ xóa chữ loại bỏ chữ gốc và dựng lại phần hình ảnh phía sau.",
+          "Chế độ phủ chữ che chữ gốc bằng một ô cùng màu. Nhanh hơn và phù hợp với khung thoại đơn giản."
+        ]
+      },
+      {
+        "h": "Bảng thuật ngữ cho tên riêng nhất quán",
+        "p": [
+          "Thêm tên nhân vật, danh xưng hoặc địa danh theo dạng “nguồn = đích” để chúng được dịch giống nhau ở mọi trang."
+        ]
+      },
+      {
+        "h": "Dịch cả chương một lần",
+        "p": [
+          "Tải lên các trang PNG, JPG hoặc WebP, hoặc một tệp ZIP/CBZ. Tải chương đã hoàn thành về dưới dạng ZIP hoặc CBZ."
+        ]
+      },
+      {
+        "h": "Xem lại và chỉnh sửa",
+        "p": [
+          "Trang sẽ được đánh dấu khi nhận dạng chữ chưa chắc chắn, bản dịch có thể sai hoặc chữ không vừa khung thoại.",
+          "Trong trình chỉnh sửa, bạn có thể sửa bản dịch, di chuyển hoặc đổi kích thước ô chữ, đổi cỡ chữ, căn lề, màu, viền chữ và viết hoa. Chèn chữ lại là miễn phí."
+        ]
+      },
+      {
+        "h": "Giới hạn thực tế",
+        "p": [
+          "Dịch máy vẫn có thể sai, đặc biệt với tiếng lóng, chơi chữ, hiệu ứng âm thanh cách điệu và chữ viết tay. Hãy luôn xem lại chương truyện trước khi chia sẻ."
+        ]
+      },
+      {
+        "h": "Tự động xóa tệp",
+        "p": [
+          "Các trang đã tải lên và kết quả sẽ tự động bị xóa sau thời gian lưu trữ ghi trên trang bảng giá. Bạn cũng có thể xóa tác vụ bất cứ lúc nào."
+        ]
+      }
+    ]
+  },
+  "faq": {
+    "title": "Câu hỏi thường gặp",
+    "items": [
+      {
+        "q": "Bản dịch có hoàn hảo không?",
+        "a": "Không. AI dịch tốt các đoạn hội thoại thông thường nhưng vẫn có thể sai với tiếng lóng, câu đùa, tên riêng và chữ cách điệu. Các trang chưa chắc chắn sẽ được đánh dấu để xem lại, và bạn có thể sửa bất kỳ khung thoại nào trong trình chỉnh sửa."
+      },
+      {
+        "q": "Tôi có thể tải lên những tệp nào?",
+        "a": "Ảnh PNG, JPG, JPEG và WebP, hoặc tệp ZIP và CBZ chứa các ảnh đó. Giới hạn dung lượng và số trang được ghi trên trang bảng giá."
+      },
+      {
+        "q": "Mỗi trang tốn bao nhiêu?",
+        "a": "Mỗi trang được dịch sẽ tốn credit; mức cụ thể của từng chế độ có trên trang bảng giá. Bạn chỉ bị tính phí cho các trang được xử lý thành công."
+      },
+      {
+        "q": "Chế độ xóa chữ và phủ chữ khác nhau thế nào?",
+        "a": "Chế độ xóa chữ loại bỏ chữ gốc và vẽ lại nền. Chế độ phủ chữ đặt một ô che lên chữ gốc — nhanh hơn và phù hợp với khung thoại trơn."
+      },
+      {
+        "q": "Tệp của tôi được lưu trong bao lâu?",
+        "a": "Tệp tải lên và kết quả sẽ tự động bị xóa sau thời gian lưu trữ ghi trên trang bảng giá. Hãy tải chương truyện về trước thời điểm đó."
+      },
+      {
+        "q": "Tôi có thể dịch bất kỳ truyện nào tìm thấy trên mạng không?",
+        "a": "Chỉ khi bạn sở hữu nội dung hoặc được chủ sở hữu quyền cho phép. Điều khoản của chúng tôi không cho phép tải lên nội dung mà bạn không có quyền."
+      },
+      {
+        "q": "Khi nào credit đã mua được cộng vào tài khoản?",
+        "a": "Ngay khi nhà cung cấp thanh toán xác nhận giao dịch. Thường rất nhanh, nhưng đôi khi có thể mất vài phút."
+      },
+      {
+        "q": "Tôi có thể sửa bản dịch sau khi tác vụ hoàn tất không?",
+        "a": "Có. Mở trình chỉnh sửa từ trang tác vụ, sửa chữ hoặc bố cục rồi lưu. Trang sẽ được chèn chữ lại miễn phí."
+      }
+    ]
+  },
+  "legal": {
+    "draft": "Bản nháp — đang chờ rà soát pháp lý",
+    "terms": {
+      "title": "Điều khoản dịch vụ",
+      "intro": "Các điều khoản này áp dụng khi bạn sử dụng MangaTranslate AI (“dịch vụ”). Khi tạo tài khoản hoặc sử dụng dịch vụ, bạn đồng ý với các điều khoản này.",
+      "sections": [
+        {
+          "h": "1. Dịch vụ",
+          "p": [
+            "MangaTranslate AI dùng công cụ tự động để phát hiện, dịch, xóa và chèn lại chữ trên các trang truyện tranh bạn tải lên. Kết quả do máy tạo ra và có thể có sai sót. Bạn có trách nhiệm xem lại kết quả trước khi sử dụng hoặc chia sẻ."
+          ]
+        },
+        {
+          "h": "2. Nội dung và quyền của bạn",
+          "p": [
+            "Bạn phải sở hữu, hoặc có đầy đủ quyền và sự cho phép cần thiết từ chủ sở hữu quyền đối với, mọi nội dung bạn tải lên, xử lý hoặc dịch bằng dịch vụ.",
+            "Không tải lên nội dung mà bạn không có quyền. Bạn vẫn giữ quyền sở hữu nội dung của mình. Bạn cho phép chúng tôi lưu trữ và xử lý nội dung đó trong phạm vi giới hạn, chỉ để cung cấp dịch vụ cho bạn."
+          ]
+        },
+        {
+          "h": "3. Sử dụng hợp lệ",
+          "p": [
+            "Bạn không được dùng dịch vụ cho nội dung bất hợp pháp, nội dung xâm phạm quyền của người khác, nội dung tình dục liên quan đến trẻ vị thành niên, mã độc, hoặc tìm cách phá hoại hay vượt qua các giới hạn của dịch vụ."
+          ]
+        },
+        {
+          "h": "4. Credit và thanh toán",
+          "p": [
+            "Bản dịch được thanh toán bằng credit. Giá và mức credit được hiển thị trên trang bảng giá. Credit đã mua được cộng sau khi nhà cung cấp thanh toán xác nhận giao dịch. Chỉ tính credit cho các trang được xử lý thành công.",
+            "Yêu cầu hoàn tiền được xem xét theo từng trường hợp và theo quy định pháp luật hiện hành."
+          ]
+        },
+        {
+          "h": "5. Lưu trữ",
+          "p": [
+            "Tệp tải lên và kết quả sẽ tự động bị xóa sau thời gian lưu trữ ghi trên trang bảng giá. Hãy tự lưu bản sao những gì bạn cần."
+          ]
+        },
+        {
+          "h": "6. Tạm khóa và chấm dứt",
+          "p": [
+            "Chúng tôi có thể tạm khóa hoặc đóng các tài khoản vi phạm điều khoản. Bạn có thể xóa tài khoản bất cứ lúc nào trong phần Cài đặt."
+          ]
+        },
+        {
+          "h": "7. Miễn trừ và giới hạn trách nhiệm",
+          "p": [
+            "Dịch vụ được cung cấp “nguyên trạng”, không bảo đảm về độ chính xác hay sự phù hợp cho một mục đích cụ thể. Trong phạm vi pháp luật cho phép, trách nhiệm của chúng tôi giới hạn ở số tiền bạn đã trả cho chúng tôi trong 12 tháng trước khi phát sinh khiếu nại."
+          ]
+        },
+        {
+          "h": "8. Thay đổi và liên hệ",
+          "p": [
+            "Chúng tôi có thể cập nhật các điều khoản này và sẽ đăng phiên bản mới trên trang này. Để báo cáo vi phạm bản quyền hoặc lạm dụng, hãy liên hệ abuse@example.com."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Chính sách quyền riêng tư",
+      "intro": "Chính sách này giải thích MangaTranslate AI xử lý những dữ liệu cá nhân nào và vì sao.",
+      "sections": [
+        {
+          "h": "Dữ liệu chúng tôi thu thập",
+          "p": [
+            "Dữ liệu tài khoản: địa chỉ email, mật khẩu (được lưu dưới dạng băm), ngôn ngữ ưu tiên và vai trò.",
+            "Nội dung: các trang bạn tải lên, chữ được nhận dạng, bản dịch và ảnh được tạo ra.",
+            "Thanh toán: thông tin giao dịch như số tiền, trạng thái và mã tham chiếu của nhà cung cấp thanh toán. Thông tin thẻ hoặc tài khoản ngân hàng do nhà cung cấp thanh toán xử lý, không phải chúng tôi.",
+            "Dữ liệu kỹ thuật: địa chỉ IP và thông tin trình duyệt, dùng cho bảo mật, giới hạn truy cập và chống lạm dụng."
+          ]
+        },
+        {
+          "h": "Cách chúng tôi sử dụng",
+          "p": [
+            "Để chạy các tác vụ dịch của bạn, bảo vệ tài khoản, xử lý thanh toán, gửi email dịch vụ (như xác minh và đặt lại mật khẩu) và ngăn chặn lạm dụng."
+          ]
+        },
+        {
+          "h": "Nhà cung cấp xử lý",
+          "p": [
+            "Để dịch các trang của bạn, hình ảnh và chữ trích xuất được gửi tới các nhà cung cấp nhận dạng chữ và dịch thuật bên thứ ba. Họ chỉ được dùng để xử lý tác vụ của bạn."
+          ]
+        },
+        {
+          "h": "Thời gian lưu trữ",
+          "p": [
+            "Tệp tải lên và kết quả bị xóa sau thời gian lưu trữ ghi trên trang bảng giá. Dữ liệu tài khoản được giữ trong thời gian tài khoản còn tồn tại. Chứng từ kế toán và thanh toán được lưu trong thời hạn pháp luật yêu cầu, kể cả sau khi xóa tài khoản."
+          ]
+        },
+        {
+          "h": "Cookie",
+          "p": [
+            "Chúng tôi dùng một cookie phiên cần thiết để duy trì đăng nhập và một cookie ghi nhớ ngôn ngữ của bạn. Chúng tôi không dùng cookie quảng cáo."
+          ]
+        },
+        {
+          "h": "Lựa chọn của bạn",
+          "p": [
+            "Bạn có thể đổi ngôn ngữ, đổi mật khẩu hoặc xóa tài khoản trong phần Cài đặt. Xóa tài khoản sẽ xóa tệp và dữ liệu cá nhân của bạn, trừ những hồ sơ chúng tôi phải lưu giữ theo luật."
+          ]
+        }
+      ]
+    },
+    "copyright": {
+      "title": "Bản quyền & báo cáo vi phạm",
+      "intro": "Chúng tôi tôn trọng quyền của tác giả. Người dùng chỉ được tải lên nội dung họ sở hữu hoặc được phép dịch.",
+      "sections": [
+        {
+          "h": "Báo cáo vi phạm bản quyền",
+          "p": [
+            "Nếu bạn cho rằng nội dung được xử lý bằng dịch vụ của chúng tôi xâm phạm bản quyền của bạn, hãy gửi email tới abuse@example.com kèm theo: mô tả tác phẩm có bản quyền; vị trí của nội dung vi phạm (ví dụ đường dẫn hoặc mã tác vụ, nếu biết); họ tên và thông tin liên hệ của bạn; tuyên bố rằng bạn tin một cách thiện chí rằng việc sử dụng này chưa được cho phép; và tuyên bố rằng thông tin trong thông báo là chính xác và bạn là chủ sở hữu quyền hoặc được ủy quyền hành động thay họ, kèm chữ ký của bạn."
+          ]
+        },
+        {
+          "h": "Quy trình xử lý",
+          "p": [
+            "Chúng tôi xem xét mọi thông báo, gỡ bỏ hoặc chặn truy cập nội dung vi phạm khi phù hợp, và có thể khóa tài khoản vi phạm nhiều lần. Nếu nội dung của bạn bị gỡ và bạn cho rằng đó là nhầm lẫn, bạn có thể gửi phản hồi tới cùng địa chỉ."
+          ]
+        },
+        {
+          "h": "Lạm dụng khác",
+          "p": [
+            "Để báo cáo nội dung bất hợp pháp hoặc hành vi lạm dụng dịch vụ khác, cũng vui lòng liên hệ abuse@example.com."
+          ]
+        },
+        {
+          "h": "Hình ảnh trên trang web này",
+          "p": [
+            "Các hình ảnh minh họa trên trang chủ lấy từ Pepper&Carrot của David Revoy, cấp phép theo Creative Commons Attribution 4.0 (CC-BY 4.0)."
+          ]
+        }
+      ]
+    }
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Mật khẩu",
+    "passwordHint": "Từ 10 đến 128 ký tự.",
+    "mismatch": "Mật khẩu nhập lại không khớp.",
+    "login": {
+      "title": "Đăng nhập",
+      "submit": "Đăng nhập",
+      "forgot": "Quên mật khẩu?",
+      "noAccount": "Chưa có tài khoản?",
+      "register": "Đăng ký"
+    },
+    "register": {
+      "title": "Tạo tài khoản",
+      "description": "Xác minh email để nhận credit miễn phí.",
+      "submit": "Tạo tài khoản",
+      "haveAccount": "Đã có tài khoản?",
+      "login": "Đăng nhập",
+      "agree": "Tôi đồng ý với <terms>Điều khoản dịch vụ</terms> và <privacy>Chính sách quyền riêng tư</privacy>, và cam kết chỉ tải lên nội dung tôi sở hữu hoặc có quyền."
+    },
+    "verify": {
+      "title": "Xác minh email",
+      "working": "Đang xác minh…",
+      "done": "Email của bạn đã được xác minh. Credit miễn phí đã được cộng vào tài khoản.",
+      "missing": "Liên kết xác minh không đầy đủ. Hãy mở lại liên kết trong email.",
+      "continue": "Đến bảng điều khiển"
+    },
+    "forgot": {
+      "title": "Đặt lại mật khẩu",
+      "description": "Nhập email của bạn, chúng tôi sẽ gửi liên kết đặt lại mật khẩu.",
+      "submit": "Gửi liên kết",
+      "sent": "Nếu có tài khoản dùng email này, chúng tôi đã gửi liên kết để đặt lại mật khẩu.",
+      "back": "Quay lại đăng nhập"
+    },
+    "reset": {
+      "title": "Chọn mật khẩu mới",
+      "password": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu mới",
+      "submit": "Lưu mật khẩu mới",
+      "done": "Mật khẩu đã được thay đổi. Để bảo mật, bạn đã được đăng xuất khỏi mọi thiết bị.",
+      "login": "Đăng nhập",
+      "missing": "Liên kết đặt lại không đầy đủ. Hãy yêu cầu liên kết mới."
+    }
+  },
+  "dashboard": {
+    "title": "Bảng điều khiển",
+    "balance": "Số dư credit",
+    "credits": "{count, plural, other {# credit}}",
+    "buy": "Mua credit",
+    "recent": "Tác vụ gần đây",
+    "viewAll": "Xem tất cả",
+    "noJobs": "Chưa có tác vụ nào. Hãy tải lên chương đầu tiên để bắt đầu.",
+    "verify": {
+      "title": "Vui lòng xác minh email",
+      "body": "Chúng tôi đã gửi liên kết xác minh tới {email}. Hãy xác minh email để bắt đầu dịch và nhận credit miễn phí.",
+      "resend": "Gửi lại email",
+      "sent": "Đã gửi email xác minh."
+    }
+  },
+  "jobs": {
+    "title": "Tác vụ",
+    "new": "Dịch mới",
+    "empty": "Bạn chưa có tác vụ nào.",
+    "untitled": "Chưa đặt tên",
+    "retry": "Thử lại",
+    "col": {
+      "title": "Tiêu đề",
+      "status": "Trạng thái",
+      "pages": "Trang",
+      "created": "Ngày tạo",
+      "actions": "Thao tác"
+    }
+  },
+  "upload": {
+    "title": "Dịch chương mới",
+    "description": "Tải lên các trang hoặc tệp nén, chọn ngôn ngữ, phần còn lại để chúng tôi lo.",
+    "dropHere": "Kéo thả tệp vào đây hoặc bấm để chọn",
+    "formats": "PNG, JPG, WebP, ZIP hoặc CBZ · tối đa {mb} MB mỗi tệp · tối đa {pages} trang",
+    "selected": "Đã chọn {count, plural, other {# tệp}}",
+    "fileProgress": "Tiến độ tải lên của {name}",
+    "remove": "Bỏ {name}",
+    "chapterTitle": "Tên chương",
+    "chapterPlaceholder": "ví dụ: Chương 12",
+    "sourceLang": "Ngôn ngữ nguồn",
+    "targetLang": "Ngôn ngữ đích",
+    "mode": "Chế độ",
+    "modes": {
+      "clean": {
+        "label": "Xóa chữ",
+        "hint": "Xóa chữ gốc và vẽ lại nền"
+      },
+      "overlay": {
+        "label": "Phủ chữ",
+        "hint": "Che chữ gốc — nhanh hơn"
+      }
+    },
+    "perPage": "{count, plural, other {# credit}} mỗi trang",
+    "glossary": "Bảng thuật ngữ (không bắt buộc)",
+    "glossaryPlaceholder": "师姐 = sư tỷ",
+    "glossaryHint": "Mỗi dòng một thuật ngữ: nguồn = đích.",
+    "estimateEmpty": "Thêm tệp để xem chi phí dự kiến.",
+    "estimate": "Chi phí dự kiến: {credits, plural, other {# credit}} cho {pages, plural, other {# trang ảnh}}.",
+    "archiveNote": "Số trang trong tệp nén sẽ được tính sau khi giải nén.",
+    "balance": "Số dư của bạn: {credits, plural, other {# credit}}.",
+    "lowBalance": "Số dư có thể không đủ cho chương này.",
+    "buyCredits": "Mua credit",
+    "uploading": "Đang tải lên… đã xong {done} trên {total} tệp.",
+    "creating": "Đang bắt đầu dịch…",
+    "working": "Đang xử lý…",
+    "submit": "Bắt đầu dịch",
+    "reject": {
+      "type": "{name}: định dạng tệp không được hỗ trợ.",
+      "size": "{name}: tệp lớn hơn {mb} MB.",
+      "empty": "{name}: tệp trống."
+    },
+    "errors": {
+      "noFiles": "Hãy thêm ít nhất một tệp.",
+      "tooManyPages": "Mỗi tác vụ có tối đa {max} trang.",
+      "glossary": "Các dòng {lines} của bảng thuật ngữ không đúng dạng “nguồn = đích”.",
+      "insufficient": "Bạn không đủ credit cho tác vụ này.",
+      "notVerified": "Vui lòng xác minh email trước khi bắt đầu dịch. Hãy kiểm tra hộp thư để tìm liên kết xác minh.",
+      "uploadFailed": "Không thể tải lên một tệp. Hãy kiểm tra kết nối mạng và thử lại."
+    }
+  },
+  "job": {
+    "title": "Tác vụ",
+    "back": "Tất cả tác vụ",
+    "notFound": "Tác vụ này không tồn tại hoặc đã bị xóa.",
+    "untitled": "Chưa đặt tên",
+    "meta": "{source} → {target} · {mode} · {date}",
+    "mode": {
+      "clean": "Xóa chữ",
+      "overlay": "Phủ chữ"
+    },
+    "expires": "Tệp sẽ bị xóa vào {date}.",
+    "openEditor": "Mở trình chỉnh sửa",
+    "downloadZip": "Tải ZIP",
+    "downloadCbz": "Tải CBZ",
+    "retry": "Thử lại các trang lỗi",
+    "cancel": "Hủy tác vụ",
+    "cancelTitle": "Hủy tác vụ này?",
+    "cancelBody": "Các trang chưa hoàn thành sẽ không được xử lý. Credit của các trang chưa xử lý sẽ được hoàn lại.",
+    "delete": "Xóa",
+    "deleteTitle": "Xóa tác vụ này?",
+    "deleteBody": "Toàn bộ trang đã tải lên và kết quả của tác vụ này sẽ bị xóa vĩnh viễn. Không thể hoàn tác.",
+    "preparing": "Đang chuẩn bị tệp tải về…",
+    "downloadTimeout": "Việc chuẩn bị tệp tải về lâu hơn dự kiến. Vui lòng thử lại sau vài phút.",
+    "insufficient": "Tác vụ đã dừng vì số dư không đủ. Bạn không bị trừ credit.",
+    "buyCredits": "Mua credit",
+    "failed": "Không thể hoàn thành tác vụ này.",
+    "progressTitle": "Tiến độ",
+    "progress": "{done} / {total} trang",
+    "credits": "Credit tạm giữ: {reserved} · đã trừ: {charged}",
+    "completed": "Hoàn thành",
+    "needsReview": "Cần xem lại",
+    "failedPages": "Lỗi",
+    "pages": "Các trang",
+    "filter": "Lọc trang",
+    "filters": {
+      "all": "Tất cả ({count})",
+      "attention": "Cần chú ý ({count})"
+    },
+    "noPages": "Chưa có trang nào. Các trang sẽ hiện ở đây sau khi tệp tải lên được xử lý.",
+    "noProblems": "Không có trang nào cần chú ý.",
+    "editPage": "Chỉnh sửa trang {n}",
+    "page": "Trang {n}",
+    "pageError": "Đã xảy ra lỗi khi xử lý trang {n}. Bạn có thể thử lại trang này."
+  },
+  "jobStatus": {
+    "PENDING": "Đang chờ",
+    "INGESTING": "Đang chuẩn bị",
+    "PROCESSING": "Đang xử lý",
+    "TRANSLATING": "Đang dịch",
+    "RENDERING": "Đang chèn chữ",
+    "FINALIZING": "Đang hoàn tất",
+    "COMPLETED": "Hoàn thành",
+    "PARTIAL": "Hoàn thành một phần",
+    "FAILED": "Thất bại",
+    "CANCELLED": "Đã hủy",
+    "EXPIRED": "Đã hết hạn"
+  },
+  "pageStatus": {
+    "pending": "Đang chờ",
+    "processing": "Đang xử lý",
+    "ready": "Xong",
+    "failed": "Lỗi",
+    "review": "Cần xem lại"
+  },
+  "reviewReasons": {
+    "LOW_OCR_CONFIDENCE": "Nhận dạng chữ chưa chắc chắn",
+    "TRANSLATION_UNCERTAIN": "Bản dịch có thể chưa chính xác",
+    "TEXT_OVERFLOW": "Chữ có thể không vừa khung thoại",
+    "NO_TEXT_FOUND": "Không tìm thấy chữ"
+  },
+  "paymentStatus": {
+    "pending": "Đang chờ",
+    "paid": "Đã thanh toán",
+    "cancelled": "Đã hủy",
+    "failed": "Thất bại",
+    "refunded": "Đã hoàn tiền"
+  },
+  "creditKind": {
+    "signup_bonus": "Thưởng đăng ký",
+    "purchase": "Mua credit",
+    "reserve": "Tạm giữ cho tác vụ",
+    "release": "Hoàn lại",
+    "refund": "Hoàn tiền",
+    "admin_grant": "Hỗ trợ viên cộng",
+    "admin_revoke": "Hỗ trợ viên trừ"
+  },
+  "userStatus": {
+    "active": "Đang hoạt động",
+    "suspended": "Đã tạm khóa",
+    "deleted": "Đã xóa"
+  },
+  "languages": {
+    "Chinese": "Tiếng Trung",
+    "Korean": "Tiếng Hàn",
+    "Japanese": "Tiếng Nhật",
+    "Vietnamese": "Tiếng Việt",
+    "English": "Tiếng Anh"
+  },
+  "editor": {
+    "title": "Trình chỉnh sửa",
+    "noPages": "Tác vụ này chưa có trang nào.",
+    "pageList": "Danh sách trang",
+    "pageN": "Trang {n}",
+    "pageOf": "Trang {n} / {total}",
+    "toolbar": "Công cụ chỉnh sửa",
+    "back": "Tác vụ",
+    "undo": "Hoàn tác",
+    "redo": "Làm lại",
+    "zoomIn": "Phóng to",
+    "zoomOut": "Thu nhỏ",
+    "fit": "Vừa màn hình",
+    "imageView": "Hình ảnh",
+    "views": {
+      "original": "Bản gốc",
+      "clean": "Đã xóa chữ",
+      "output": "Kết quả"
+    },
+    "boxes": "Hiện ô chữ",
+    "regenerate": "Tạo lại",
+    "saveFirst": "Hãy lưu thay đổi trước",
+    "regen": {
+      "typeset": "Chèn chữ lại",
+      "translation": "Dịch lại",
+      "inpaint": "Làm sạch nền lại",
+      "free": "Miễn phí",
+      "costs": "Tốn {count, plural, other {# credit}}",
+      "confirm": "Thao tác này tốn {count, plural, other {# credit}}, bằng giá một trang. Chữ hiện tại trên trang có thể bị thay thế."
+    },
+    "save": "Lưu",
+    "saving": "Đang lưu…",
+    "rendering": "Đang dựng lại trang…",
+    "updated": "Đã cập nhật kết quả.",
+    "renderFailed": "Không thể dựng trang. Hãy thử lại hoặc tạo lại trang.",
+    "renderSlow": "Việc dựng trang lâu hơn bình thường. Hãy tải lại trang sau ít phút để xem kết quả.",
+    "unsaved": "Bạn có thay đổi chưa lưu. Rời đi mà không lưu?",
+    "unsavedShort": "Có thay đổi chưa lưu",
+    "allSaved": "Đã lưu mọi thay đổi",
+    "conflict": "Trang này đã được thay đổi ở nơi khác nên chúng tôi đã tải lại phiên bản mới nhất. Vui lòng thực hiện lại chỉnh sửa của bạn.",
+    "insufficient": "Bạn không đủ credit cho thao tác này.",
+    "buyCredits": "Mua credit",
+    "notEditable": "Trang này chưa sẵn sàng để chỉnh sửa.",
+    "pageImage": "Trang {n}",
+    "regionLabel": "Ô chữ {n}: {text}",
+    "panel": "Thuộc tính ô chữ",
+    "selectHint": "Chọn một ô chữ trên trang hoặc trong danh sách để chỉnh sửa.",
+    "noRegions": "Không phát hiện chữ trên trang này.",
+    "region": "Ô chữ {n}",
+    "deselect": "Bỏ chọn",
+    "sourceText": "Chữ gốc",
+    "confidence": "Độ tin cậy nhận dạng: {pct}%",
+    "translation": "Bản dịch",
+    "fontSize": "Cỡ chữ",
+    "auto": "Tự động",
+    "alignment": "Căn lề",
+    "align": {
+      "left": "Căn trái",
+      "center": "Căn giữa",
+      "right": "Căn phải"
+    },
+    "color": "Màu chữ",
+    "outline": "Viền chữ",
+    "uppercase": "Viết hoa",
+    "shortcutsTitle": "Phím tắt",
+    "shortcuts": [
+      "Ctrl/⌘ + Z — hoàn tác, Ctrl/⌘ + Shift + Z — làm lại",
+      "Ctrl/⌘ + S — lưu",
+      "Phím mũi tên — di chuyển ô đang chọn (giữ Shift để đi 10 px)",
+      "Esc — bỏ chọn",
+      "Giữ Space rồi kéo, hoặc kéo vùng trống — di chuyển khung nhìn",
+      "+ / − / 0 — phóng to, thu nhỏ, vừa màn hình"
+    ]
+  },
+  "billing": {
+    "title": "Thanh toán",
+    "balance": "Số dư credit",
+    "credits": "{count, plural, other {# credit}}",
+    "buyTitle": "Mua credit",
+    "buyNote": "Bạn sẽ được chuyển tới nhà cung cấp thanh toán. Credit được cộng sau khi giao dịch được xác nhận.",
+    "noProducts": "Hiện chưa có gói credit nào.",
+    "buy": "Mua",
+    "payments": "Lịch sử thanh toán",
+    "transactions": "Lịch sử credit",
+    "noPayments": "Chưa có giao dịch thanh toán nào.",
+    "noTransactions": "Chưa có biến động credit nào.",
+    "viewJob": "Xem tác vụ",
+    "col": {
+      "date": "Ngày",
+      "product": "Gói",
+      "credits": "Credit",
+      "amount": "Số tiền",
+      "status": "Trạng thái",
+      "kind": "Loại",
+      "details": "Chi tiết"
+    }
+  },
+  "billingReturn": {
+    "title": "Trạng thái thanh toán",
+    "missing": "Không có thông tin giao dịch.",
+    "status": {
+      "pending": "Đang chờ xác nhận thanh toán",
+      "paid": "Thanh toán đã được xác nhận",
+      "cancelled": "Thanh toán đã bị hủy",
+      "failed": "Thanh toán thất bại",
+      "refunded": "Thanh toán đã được hoàn tiền"
+    },
+    "credits": "{count, plural, other {# credit}}",
+    "explain": "Credit chỉ được cộng vào tài khoản sau khi nhà cung cấp thanh toán xác nhận giao dịch. Việc này thường mất vài giây nhưng đôi khi lâu hơn.",
+    "checking": "Đang kiểm tra trạng thái thanh toán…",
+    "timeout": "Chúng tôi chưa nhận được xác nhận. Nếu bạn đã thanh toán xong, credit sẽ sớm được cộng.",
+    "checkAgain": "Kiểm tra lại",
+    "back": "Quay lại trang thanh toán",
+    "startTranslating": "Bắt đầu dịch"
+  },
+  "usage": {
+    "title": "Lịch sử sử dụng",
+    "description": "Mọi thay đổi trong số dư credit của bạn: mua credit, tác vụ và hoàn tiền."
+  },
+  "settings": {
+    "title": "Cài đặt",
+    "save": "Lưu",
+    "saved": "Đã lưu.",
+    "language": {
+      "title": "Ngôn ngữ",
+      "description": "Dùng cho giao diện và các email chúng tôi gửi cho bạn."
+    },
+    "password": {
+      "title": "Đổi mật khẩu",
+      "description": "Bạn vẫn đăng nhập trên thiết bị này; các phiên đăng nhập khác sẽ bị đăng xuất.",
+      "current": "Mật khẩu hiện tại",
+      "new": "Mật khẩu mới",
+      "confirm": "Nhập lại mật khẩu mới",
+      "hint": "Từ 10 đến 128 ký tự.",
+      "mismatch": "Mật khẩu mới nhập lại không khớp.",
+      "submit": "Đổi mật khẩu",
+      "saved": "Mật khẩu đã được thay đổi."
+    },
+    "delete": {
+      "title": "Xóa tài khoản",
+      "description": "Xóa vĩnh viễn tài khoản, các trang đã tải lên và kết quả của bạn.",
+      "button": "Xóa tài khoản của tôi",
+      "confirmTitle": "Xóa tài khoản của bạn?",
+      "confirmBody": "Bạn sẽ bị đăng xuất và tệp, tác vụ cùng dữ liệu cá nhân của bạn sẽ được lên lịch xóa. Số credit còn lại sẽ mất. Chứng từ thanh toán và kế toán được lưu giữ trong thời hạn pháp luật yêu cầu. Không thể hoàn tác.",
+      "confirm": "Xóa tài khoản",
+      "password": "Nhập mật khẩu để xác nhận"
+    }
+  },
+  "forbidden": {
+    "title": "403 — Không có quyền truy cập",
+    "body": "Bạn không có quyền xem trang này.",
+    "back": "Quay lại bảng điều khiển"
+  },
+  "notFound": {
+    "title": "Không tìm thấy trang",
+    "body": "Trang bạn tìm không tồn tại hoặc đã được chuyển đi.",
+    "home": "Về trang chủ"
+  },
+  "admin": {
+    "title": "Quản trị",
+    "nav": {
+      "label": "Các mục quản trị",
+      "overview": "Tổng quan",
+      "users": "Người dùng",
+      "jobs": "Tác vụ",
+      "payments": "Thanh toán",
+      "credits": "Credit",
+      "providers": "Nhà cung cấp AI",
+      "costs": "Chi phí",
+      "system": "Hệ thống",
+      "audit": "Nhật ký kiểm toán"
+    },
+    "overview": {
+      "title": "Tổng quan",
+      "users": "Người dùng",
+      "activeUsers": "Người dùng hoạt động (30 ngày)",
+      "pages": "Số trang đã xử lý",
+      "revenue": "Doanh thu",
+      "aiCost": "Chi phí AI",
+      "margin": "Biên lợi nhuận gộp",
+      "costPerPage": "Chi phí trung bình mỗi trang",
+      "avgTime": "Thời gian xử lý trung bình",
+      "seconds": "{s} giây",
+      "failedJobs": "Tác vụ thất bại (30 ngày)",
+      "jobsByStatus": "Tác vụ theo trạng thái",
+      "costs30": "Chi phí theo ngày — 30 ngày qua"
+    },
+    "costs": {
+      "title": "Chi phí",
+      "range": "Khoảng thời gian",
+      "lastDays": "{count} ngày qua",
+      "empty": "Không có dữ liệu trong khoảng này.",
+      "date": "Ngày",
+      "pages": "Số trang",
+      "aiCost": "Chi phí AI",
+      "revenue": "Doanh thu",
+      "total": "Tổng"
+    },
+    "users": {
+      "title": "Người dùng",
+      "search": "Tìm kiếm",
+      "searchPlaceholder": "Địa chỉ email",
+      "empty": "Không tìm thấy người dùng.",
+      "email": "Email",
+      "role": "Vai trò",
+      "status": "Trạng thái",
+      "credits": "Credit",
+      "created": "Ngày tạo",
+      "unverified": "chưa xác minh",
+      "suspend": "Tạm khóa",
+      "restore": "Khôi phục",
+      "suspendTitle": "Tạm khóa người dùng này?",
+      "suspendBody": "Người dùng sẽ bị đăng xuất và không thể sử dụng dịch vụ cho đến khi được khôi phục.",
+      "restoreTitle": "Khôi phục người dùng này?",
+      "restoreBody": "Người dùng sẽ có thể đăng nhập và sử dụng dịch vụ trở lại.",
+      "reason": "Lý do (bắt buộc, được lưu vào nhật ký kiểm toán)",
+      "adjustCredits": "Điều chỉnh credit",
+      "jobs": "Tác vụ gần đây",
+      "noJobs": "Không có tác vụ.",
+      "transactions": "Lịch sử credit",
+      "noTransactions": "Không có biến động credit."
+    },
+    "credits": {
+      "title": "Cộng hoặc trừ credit",
+      "direction": "Thao tác",
+      "grant": "Cộng",
+      "revoke": "Trừ",
+      "amount": "Số lượng",
+      "reason": "Lý do (bắt buộc)",
+      "apply": "Áp dụng",
+      "confirmTitle": "Xác nhận thay đổi credit",
+      "confirmGrant": "Cộng {count, plural, other {# credit}} cho {email}?",
+      "confirmRevoke": "Trừ {count, plural, other {# credit}} của {email}? Số dư không thể xuống dưới 0.",
+      "done": "Đã cập nhật số dư.",
+      "noMatch": "Không có người dùng phù hợp.",
+      "select": "Chọn",
+      "selected": "Đã chọn: {email}.",
+      "openUsers": "Mở danh sách người dùng"
+    },
+    "jobs": {
+      "title": "Tác vụ",
+      "filter": "Lọc theo trạng thái",
+      "empty": "Không tìm thấy tác vụ.",
+      "job": "Tác vụ",
+      "user": "Người dùng",
+      "status": "Trạng thái",
+      "pages": "Trang",
+      "credits": "Đã trừ / tạm giữ",
+      "created": "Ngày tạo",
+      "actions": "Thao tác",
+      "retry": "Thử lại",
+      "retryTitle": "Thử lại các trang lỗi?",
+      "retryBody": "Các trang lỗi trong tác vụ này của {email} sẽ được đưa vào hàng đợi lại.",
+      "cancel": "Hủy",
+      "cancelTitle": "Hủy tác vụ này?",
+      "cancelBody": "Việc xử lý cho {email} sẽ dừng và các trang chưa xử lý sẽ không bị tính phí."
+    },
+    "payments": {
+      "title": "Thanh toán",
+      "filter": "Lọc theo trạng thái",
+      "empty": "Không tìm thấy giao dịch.",
+      "date": "Ngày",
+      "user": "Người dùng",
+      "product": "Gói",
+      "amount": "Số tiền",
+      "credits": "Credit",
+      "provider": "Nhà cung cấp",
+      "status": "Trạng thái",
+      "actions": "Thao tác",
+      "refund": "Ghi nhận hoàn tiền",
+      "refundTitle": "Ghi nhận hoàn tiền?",
+      "refundBody": "Ghi nhận rằng {amount} đã được hoàn cho {email} qua nhà cung cấp thanh toán hoặc ngân hàng. Thao tác này không tự chuyển tiền.",
+      "reason": "Lý do (bắt buộc)",
+      "revoke": "Đồng thời trừ {count, plural, other {# credit}} của giao dịch này"
+    },
+    "providers": {
+      "title": "Nhà cung cấp AI",
+      "note": "Số ưu tiên nhỏ hơn được thử trước. Khóa API được cấu hình trên máy chủ, không phải ở đây.",
+      "empty": "Chưa cấu hình nhà cung cấp nào.",
+      "healthy": "Hoạt động tốt",
+      "unhealthy": "Có sự cố",
+      "enabled": "Bật",
+      "model": "Mô hình",
+      "priority": "Ưu tiên",
+      "priorityHint": "Nhỏ hơn chạy trước",
+      "inputPrice": "Giá đầu vào (USD / 1 triệu)",
+      "outputPrice": "Giá đầu ra (USD / 1 triệu)",
+      "save": "Lưu thay đổi",
+      "reset": "Đặt lại",
+      "confirmTitle": "Áp dụng thay đổi cho {name}?"
+    },
+    "system": {
+      "title": "Hệ thống",
+      "settings": "Cài đặt",
+      "saveSettings": "Lưu cài đặt",
+      "confirmSettings": "Áp dụng các cài đặt này?",
+      "keys": {
+        "credits_per_page_clean": "Credit mỗi trang (xóa chữ)",
+        "credits_per_page_overlay": "Credit mỗi trang (phủ chữ)",
+        "signup_bonus": "Thưởng đăng ký (credit)",
+        "usd_vnd_rate": "Tỷ giá USD → VND",
+        "max_pages_per_job": "Số trang tối đa mỗi tác vụ",
+        "max_concurrent_jobs": "Số tác vụ chạy đồng thời tối đa",
+        "retention_days": "Thời gian lưu trữ (ngày)"
+      },
+      "products": "Gói credit",
+      "noProducts": "Chưa có gói credit nào.",
+      "p": {
+        "code": "Mã",
+        "name": "Tên",
+        "credits": "Credit",
+        "price": "Giá",
+        "priceHint": "Theo đơn vị tiền tệ nhỏ nhất (VND không có đơn vị lẻ).",
+        "currency": "Tiền tệ",
+        "sort": "Thứ tự",
+        "active": "Đang bán",
+        "actions": "Thao tác",
+        "yes": "Có",
+        "no": "Không",
+        "edit": "Sửa",
+        "new": "Gói mới",
+        "editTitle": "Sửa gói {code}",
+        "newTitle": "Gói credit mới",
+        "save": "Lưu",
+        "deactivateWarning": "Ngừng bán sẽ ẩn gói này khỏi trang bảng giá và trang thanh toán."
+      }
+    },
+    "audit": {
+      "title": "Nhật ký kiểm toán",
+      "empty": "Chưa có mục nào.",
+      "date": "Ngày",
+      "actor": "Người thực hiện",
+      "action": "Hành động",
+      "target": "Đối tượng",
+      "details": "Chi tiết",
+      "ip": "IP"
+    }
+  }
+}

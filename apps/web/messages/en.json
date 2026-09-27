@@ -1,0 +1,950 @@
+{
+  "common": {
+    "loading": "Loading…",
+    "retry": "Try again",
+    "errorTitle": "Something went wrong",
+    "cancel": "Cancel",
+    "pagination": "Pagination",
+    "range": "{from}–{to} of {total}",
+    "previous": "Previous",
+    "next": "Next",
+    "all": "All"
+  },
+  "errors": {
+    "title": "Something went wrong",
+    "generic": "Something went wrong. Please try again.",
+    "network": "We couldn't reach the server. Check your connection and try again.",
+    "retry": "Try again"
+  },
+  "nav": {
+    "skip": "Skip to content",
+    "main": "Main",
+    "menu": "Menu",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "login": "Log in",
+    "register": "Sign up",
+    "dashboard": "Dashboard",
+    "jobs": "Jobs",
+    "newJob": "New translation",
+    "billing": "Billing",
+    "usage": "Usage",
+    "settings": "Settings",
+    "admin": "Admin",
+    "logout": "Log out",
+    "account": "Account",
+    "creditsLabel": "{count, plural, one {# credit} other {# credits}} — open billing",
+    "language": "Language",
+    "languageNames": {
+      "vi": "Tiếng Việt",
+      "en": "English"
+    }
+  },
+  "footer": {
+    "label": "Footer",
+    "features": "Features",
+    "pricing": "Pricing",
+    "faq": "FAQ",
+    "terms": "Terms",
+    "privacy": "Privacy",
+    "copyright": "Copyright & abuse",
+    "rights": "© {year} {name}"
+  },
+  "meta": {
+    "home": {
+      "title": "MangaTranslate AI — Translate manga, manhwa and manhua with AI",
+      "description": "Turn manga, manhwa and manhua pages into clean translated images in minutes. OCR, context-aware translation, background cleaning and typesetting in one place."
+    },
+    "pricing": {
+      "title": "Pricing",
+      "description": "Pay per page with credits. See credit packs, what each page costs, supported languages and limits."
+    },
+    "features": {
+      "title": "Features",
+      "description": "OCR, context-aware translation with glossaries, text removal, typesetting, batch chapters and an editor to fix any bubble."
+    },
+    "faq": {
+      "title": "FAQ",
+      "description": "Answers about accuracy, file formats, credits, file retention and content rights."
+    },
+    "terms": {
+      "title": "Terms of Service",
+      "description": "The terms for using MangaTranslate AI."
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "description": "What data MangaTranslate AI collects and how it is used."
+    },
+    "copyright": {
+      "title": "Copyright & abuse",
+      "description": "How to report copyright infringement or abuse on MangaTranslate AI."
+    },
+    "login": {
+      "title": "Log in",
+      "description": "Log in to MangaTranslate AI."
+    },
+    "register": {
+      "title": "Create an account",
+      "description": "Create a MangaTranslate AI account and get free credits after verifying your email."
+    }
+  },
+  "home": {
+    "heroTitle": "Translate Manga with AI",
+    "heroSubtitle": "Turn manga, manhwa and manhua pages into clean translated images in minutes.",
+    "heroNote": "Chinese, Korean and Japanese to Vietnamese or English. Review and adjust every bubble before you download.",
+    "cta": "Start Translating",
+    "seePricing": "See pricing",
+    "showcaseTitle": "From raw page to clean canvas",
+    "showcaseBody": "The first step of every translation: detect the text and rebuild the artwork behind it, ready for typesetting.",
+    "original": "Original",
+    "originalAlt": "Original comic page with speech bubbles containing text",
+    "textRemoved": "Text removed",
+    "cleanAlt": "The same comic page with the text removed from the speech bubbles",
+    "credit": "Artwork: Pepper&Carrot by David Revoy (CC-BY 4.0)",
+    "stepsTitle": "How it works",
+    "steps": {
+      "ocr": {
+        "title": "Text detection (OCR)",
+        "body": "Finds speech bubbles, captions and narration boxes and reads the original text."
+      },
+      "translate": {
+        "title": "Context-aware translation",
+        "body": "Translates with the surrounding page in mind and follows your glossary for names and terms."
+      },
+      "clean": {
+        "title": "Clean background",
+        "body": "Removes the original lettering and fills in the artwork, or covers it in the faster overlay mode."
+      },
+      "typeset": {
+        "title": "Typesetting",
+        "body": "Fits the translated text back into each bubble. You can change size, alignment and colour in the editor."
+      },
+      "batch": {
+        "title": "Batch chapters",
+        "body": "Upload a whole chapter as images or a ZIP/CBZ archive and download the result as ZIP or CBZ."
+      }
+    },
+    "expectTitle": "What to expect",
+    "expect": [
+      "AI translation is fast but not perfect. Pages with low confidence are flagged so you can review them first.",
+      "Stylised sound effects and handwritten text are the hardest cases and may need manual fixes.",
+      "You only pay credits for pages that render successfully.",
+      "Only upload content you own or have the rights to translate."
+    ]
+  },
+  "pricing": {
+    "title": "Pricing",
+    "subtitle": "Buy credits and spend them per translated page. No subscription.",
+    "free": {
+      "title": "Free",
+      "desc": "Added once when you verify your email.",
+      "cta": "Create a free account"
+    },
+    "credits": "{count, plural, one {# credit} other {# credits}}",
+    "approxPages": "≈ {count, plural, one {# page} other {# pages}} in clean mode",
+    "perCredit": "{price} per credit",
+    "buy": "Buy",
+    "noProducts": "No credit packs are available right now.",
+    "details": "Details",
+    "perPageClean": "Credits per page — clean mode",
+    "perPageOverlay": "Credits per page — overlay mode",
+    "sourceLanguages": "Source languages",
+    "targetLanguages": "Target languages",
+    "maxPages": "Max pages per job",
+    "maxUpload": "Max upload size per file",
+    "megabytes": "{mb} MB",
+    "concurrentJobs": "Jobs running at the same time",
+    "retention": "Files kept for",
+    "days": "{count, plural, one {# day} other {# days}}",
+    "howCreditsWork": "How credits work",
+    "notes": [
+      "Credits are reserved when your chapter's page count is known and released for pages that fail.",
+      "Only successfully rendered pages are charged.",
+      "Re-typesetting a page in the editor is free; re-translating or re-cleaning a page costs the same as one page.",
+      "Purchased credits appear once the payment provider confirms your payment."
+    ]
+  },
+  "features": {
+    "title": "Features",
+    "intro": "Everything you need to turn a raw chapter into a readable translation — and to fix what the AI gets wrong.",
+    "cta": "Start Translating",
+    "sections": [
+      {
+        "h": "Made for manga, manhwa and manhua",
+        "p": [
+          "Translate Chinese, Korean and Japanese pages into Vietnamese or English. The current list of languages is always shown on the pricing page."
+        ]
+      },
+      {
+        "h": "Two output modes",
+        "p": [
+          "Clean mode removes the original text and reconstructs the artwork behind it.",
+          "Overlay mode covers the original text with a matching box. It is faster and works well for simple bubbles."
+        ]
+      },
+      {
+        "h": "Glossary for consistent names",
+        "p": [
+          "Add terms like character names, titles or places as “source = target” lines so they are translated the same way on every page."
+        ]
+      },
+      {
+        "h": "Whole chapters at once",
+        "p": [
+          "Upload PNG, JPG or WebP pages, or a ZIP/CBZ archive. Download the finished chapter as ZIP or CBZ."
+        ]
+      },
+      {
+        "h": "Review and edit",
+        "p": [
+          "Pages are flagged when text recognition is uncertain, the translation may be wrong, or text does not fit its bubble.",
+          "In the editor you can fix the translation, move or resize text boxes, and change font size, alignment, colour, outline and capitalisation. Re-typesetting is free."
+        ]
+      },
+      {
+        "h": "Honest limits",
+        "p": [
+          "Machine translation makes mistakes, especially with slang, puns, stylised sound effects and handwriting. Always review a chapter before sharing it."
+        ]
+      },
+      {
+        "h": "Automatic deletion",
+        "p": [
+          "Uploaded pages and results are deleted automatically after the retention period shown on the pricing page. You can also delete a job at any time."
+        ]
+      }
+    ]
+  },
+  "faq": {
+    "title": "Frequently asked questions",
+    "items": [
+      {
+        "q": "Is the translation perfect?",
+        "a": "No. The AI is good at typical dialogue but can make mistakes with slang, jokes, names and stylised text. Pages that look uncertain are flagged for review, and you can correct any bubble in the editor."
+      },
+      {
+        "q": "Which files can I upload?",
+        "a": "PNG, JPG, JPEG and WebP images, or ZIP and CBZ archives containing them. The size and page limits are shown on the pricing page."
+      },
+      {
+        "q": "How much does a page cost?",
+        "a": "Each translated page costs credits; the exact amount for each mode is on the pricing page. You are only charged for pages that render successfully."
+      },
+      {
+        "q": "What is the difference between clean and overlay mode?",
+        "a": "Clean mode removes the original text and repaints the background. Overlay mode places a box over the original text — faster, and fine for plain bubbles."
+      },
+      {
+        "q": "How long are my files kept?",
+        "a": "Uploads and results are deleted automatically after the retention period listed on the pricing page. Download your chapters before then."
+      },
+      {
+        "q": "Can I translate any manga I find online?",
+        "a": "Only if you own the content or have permission from the rights holder. Uploading content you do not have rights to is not allowed under our Terms."
+      },
+      {
+        "q": "When do purchased credits appear?",
+        "a": "As soon as the payment provider confirms the payment. This is usually quick, but can take a few minutes."
+      },
+      {
+        "q": "Can I fix a translation after the job finishes?",
+        "a": "Yes. Open the editor from the job page, change the text or layout, and save. The page is re-typeset for free."
+      }
+    ]
+  },
+  "legal": {
+    "draft": "Draft — pending legal review",
+    "terms": {
+      "title": "Terms of Service",
+      "intro": "These terms govern your use of MangaTranslate AI (“the service”). By creating an account or using the service you agree to them.",
+      "sections": [
+        {
+          "h": "1. The service",
+          "p": [
+            "MangaTranslate AI uses automated tools to detect, translate, remove and re-letter text in comic pages you upload. Results are generated by machine and may contain errors. You are responsible for reviewing results before using or sharing them."
+          ]
+        },
+        {
+          "h": "2. Your content and your rights",
+          "p": [
+            "You must own, or have all necessary rights and permissions from the rights holder for, any content you upload, process or translate with the service.",
+            "Do not upload content you do not have the rights to. You keep ownership of your content. You give us a limited permission to store and process it only to provide the service to you."
+          ]
+        },
+        {
+          "h": "3. Acceptable use",
+          "p": [
+            "You may not use the service for illegal content, content that infringes others’ rights, sexual content involving minors, malware, or attempts to disrupt or circumvent the service and its limits."
+          ]
+        },
+        {
+          "h": "4. Credits and payments",
+          "p": [
+            "Translations are paid for with credits. Prices and credit costs are shown on the pricing page. Purchased credits are added after the payment provider confirms payment. Credits are charged only for pages that render successfully.",
+            "Refund requests are handled case by case and as required by applicable law."
+          ]
+        },
+        {
+          "h": "5. Retention",
+          "p": [
+            "Uploaded files and results are deleted automatically after the retention period shown on the pricing page. Keep your own copies of anything you need."
+          ]
+        },
+        {
+          "h": "6. Suspension and termination",
+          "p": [
+            "We may suspend or close accounts that break these terms. You can delete your account at any time in Settings."
+          ]
+        },
+        {
+          "h": "7. Disclaimer and liability",
+          "p": [
+            "The service is provided “as is” without warranties of accuracy or fitness for a particular purpose. To the extent permitted by law, our liability is limited to the amount you paid us in the 12 months before the claim."
+          ]
+        },
+        {
+          "h": "8. Changes and contact",
+          "p": [
+            "We may update these terms and will show the new version on this page. For copyright or abuse reports, contact abuse@example.com."
+          ]
+        }
+      ]
+    },
+    "privacy": {
+      "title": "Privacy Policy",
+      "intro": "This policy explains what personal data MangaTranslate AI processes and why.",
+      "sections": [
+        {
+          "h": "What we collect",
+          "p": [
+            "Account data: your email address, password (stored in hashed form), language preference and role.",
+            "Content: the pages you upload, the text recognised in them, translations and generated images.",
+            "Billing: payment records such as amount, status and the payment provider’s reference. Card or bank details are handled by the payment provider, not by us.",
+            "Technical data: IP address and browser information used for security, rate limiting and abuse prevention."
+          ]
+        },
+        {
+          "h": "How we use it",
+          "p": [
+            "To run your translation jobs, keep your account secure, process payments, send service emails (such as verification and password reset) and prevent abuse."
+          ]
+        },
+        {
+          "h": "Processing providers",
+          "p": [
+            "To translate your pages, images and extracted text are sent to third-party text-recognition and translation providers. They are used only to process your job."
+          ]
+        },
+        {
+          "h": "Retention",
+          "p": [
+            "Uploaded files and results are deleted after the retention period shown on the pricing page. Account data is kept while your account exists. Accounting and payment records are kept for as long as the law requires, even after account deletion."
+          ]
+        },
+        {
+          "h": "Cookies",
+          "p": [
+            "We use an essential session cookie to keep you logged in and a cookie that remembers your language. We do not use advertising cookies."
+          ]
+        },
+        {
+          "h": "Your choices",
+          "p": [
+            "You can change your language, change your password or delete your account in Settings. Deleting your account removes your files and personal data, except records we must keep by law."
+          ]
+        }
+      ]
+    },
+    "copyright": {
+      "title": "Copyright & abuse",
+      "intro": "We respect the rights of creators. Users may only upload content they own or have permission to translate.",
+      "sections": [
+        {
+          "h": "Report copyright infringement",
+          "p": [
+            "If you believe content processed with our service infringes your copyright, email abuse@example.com with: a description of the copyrighted work; where the infringing material is (for example a link or job reference, if known); your name and contact details; a statement that you believe in good faith the use is not authorised; and a statement that the information in your notice is accurate and that you are the rights holder or authorised to act for them, with your signature."
+          ]
+        },
+        {
+          "h": "What happens next",
+          "p": [
+            "We review every notice, remove or disable access to infringing material where appropriate, and may suspend accounts of repeat infringers. If your content was removed and you believe this was a mistake, you can reply with a counter-notice to the same address."
+          ]
+        },
+        {
+          "h": "Other abuse",
+          "p": [
+            "To report illegal content or other misuse of the service, also contact abuse@example.com."
+          ]
+        },
+        {
+          "h": "Artwork on this website",
+          "p": [
+            "The example images on our homepage are from Pepper&Carrot by David Revoy, licensed under Creative Commons Attribution 4.0 (CC-BY 4.0)."
+          ]
+        }
+      ]
+    }
+  },
+  "auth": {
+    "email": "Email",
+    "password": "Password",
+    "passwordHint": "10 to 128 characters.",
+    "mismatch": "The passwords do not match.",
+    "login": {
+      "title": "Log in",
+      "submit": "Log in",
+      "forgot": "Forgot your password?",
+      "noAccount": "No account yet?",
+      "register": "Sign up"
+    },
+    "register": {
+      "title": "Create your account",
+      "description": "Verify your email to receive your free credits.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "login": "Log in",
+      "agree": "I agree to the <terms>Terms of Service</terms> and <privacy>Privacy Policy</privacy>, and I confirm I will only upload content I own or have the rights to."
+    },
+    "verify": {
+      "title": "Verify your email",
+      "working": "Verifying…",
+      "done": "Your email is verified. Your free credits have been added to your account.",
+      "missing": "This verification link is incomplete. Open the link from your email again.",
+      "continue": "Go to dashboard"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "description": "Enter your email and we will send you a reset link.",
+      "submit": "Send reset link",
+      "sent": "If an account exists for that email, we have sent a link to reset your password.",
+      "back": "Back to log in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "password": "New password",
+      "confirm": "Confirm new password",
+      "submit": "Save new password",
+      "done": "Your password has been changed. For your security, you have been logged out everywhere.",
+      "login": "Log in",
+      "missing": "This reset link is incomplete. Request a new one."
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "balance": "Credit balance",
+    "credits": "{count, plural, one {# credit} other {# credits}}",
+    "buy": "Buy credits",
+    "recent": "Recent jobs",
+    "viewAll": "View all",
+    "noJobs": "No jobs yet. Upload your first chapter to get started.",
+    "verify": {
+      "title": "Please verify your email",
+      "body": "We sent a verification link to {email}. Verify your email to start translating and receive your free credits.",
+      "resend": "Resend email",
+      "sent": "Verification email sent."
+    }
+  },
+  "jobs": {
+    "title": "Jobs",
+    "new": "New translation",
+    "empty": "You have no jobs yet.",
+    "untitled": "Untitled",
+    "retry": "Retry",
+    "col": {
+      "title": "Title",
+      "status": "Status",
+      "pages": "Pages",
+      "created": "Created",
+      "actions": "Actions"
+    }
+  },
+  "upload": {
+    "title": "Translate New Chapter",
+    "description": "Upload pages or an archive, choose the languages, and we will do the rest.",
+    "dropHere": "Drop files here or click to choose",
+    "formats": "PNG, JPG, WebP, ZIP or CBZ · up to {mb} MB per file · up to {pages} pages",
+    "selected": "{count, plural, one {# file selected} other {# files selected}}",
+    "fileProgress": "Upload progress for {name}",
+    "remove": "Remove {name}",
+    "chapterTitle": "Chapter title",
+    "chapterPlaceholder": "e.g. Chapter 12",
+    "sourceLang": "Source language",
+    "targetLang": "Target language",
+    "mode": "Mode",
+    "modes": {
+      "clean": {
+        "label": "Clean",
+        "hint": "Removes the original text and repaints the background"
+      },
+      "overlay": {
+        "label": "Overlay",
+        "hint": "Covers the original text — faster"
+      }
+    },
+    "perPage": "{count, plural, one {# credit} other {# credits}} per page",
+    "glossary": "Glossary (optional)",
+    "glossaryPlaceholder": "师姐 = sư tỷ",
+    "glossaryHint": "One term per line: source = target.",
+    "estimateEmpty": "Add files to see the estimated cost.",
+    "estimate": "Estimated cost: {credits, plural, one {# credit} other {# credits}} for {pages, plural, one {# image page} other {# image pages}}.",
+    "archiveNote": "Pages inside archives are counted after extraction.",
+    "balance": "Your balance: {credits, plural, one {# credit} other {# credits}}.",
+    "lowBalance": "Your balance may not be enough for this chapter.",
+    "buyCredits": "Buy credits",
+    "uploading": "Uploading… {done} of {total} files done.",
+    "creating": "Starting the translation…",
+    "working": "Working…",
+    "submit": "Start translation",
+    "reject": {
+      "type": "{name}: this file type is not supported.",
+      "size": "{name}: the file is larger than {mb} MB.",
+      "empty": "{name}: the file is empty."
+    },
+    "errors": {
+      "noFiles": "Add at least one file.",
+      "tooManyPages": "A job can have at most {max} pages.",
+      "glossary": "Glossary lines {lines} are not in the form “source = target”.",
+      "insufficient": "You don’t have enough credits for this job.",
+      "notVerified": "Please verify your email before starting a translation. Check your inbox for the verification link.",
+      "uploadFailed": "A file could not be uploaded. Check your connection and try again."
+    }
+  },
+  "job": {
+    "title": "Job",
+    "back": "All jobs",
+    "notFound": "This job does not exist or has been deleted.",
+    "untitled": "Untitled",
+    "meta": "{source} → {target} · {mode} · {date}",
+    "mode": {
+      "clean": "Clean",
+      "overlay": "Overlay"
+    },
+    "expires": "Files are deleted on {date}.",
+    "openEditor": "Open editor",
+    "downloadZip": "Download ZIP",
+    "downloadCbz": "Download CBZ",
+    "retry": "Retry failed pages",
+    "cancel": "Cancel job",
+    "cancelTitle": "Cancel this job?",
+    "cancelBody": "Pages that are not finished yet will not be processed. Credits for unprocessed pages are released.",
+    "delete": "Delete",
+    "deleteTitle": "Delete this job?",
+    "deleteBody": "All uploaded pages and results for this job will be permanently deleted. This cannot be undone.",
+    "preparing": "Preparing your download…",
+    "downloadTimeout": "The download is taking longer than expected. Please try again in a few minutes.",
+    "insufficient": "This job stopped because your balance was too low. Nothing was charged.",
+    "buyCredits": "Buy credits",
+    "failed": "This job could not be completed.",
+    "progressTitle": "Progress",
+    "progress": "{done} / {total} pages",
+    "credits": "Credits reserved: {reserved} · charged: {charged}",
+    "completed": "Completed",
+    "needsReview": "Needs review",
+    "failedPages": "Failed",
+    "pages": "Pages",
+    "filter": "Filter pages",
+    "filters": {
+      "all": "All ({count})",
+      "attention": "Needs attention ({count})"
+    },
+    "noPages": "No pages yet. They appear here once the upload has been processed.",
+    "noProblems": "No pages need attention.",
+    "editPage": "Edit page {n}",
+    "page": "Page {n}",
+    "pageError": "Something went wrong processing page {n}. You can retry this page."
+  },
+  "jobStatus": {
+    "PENDING": "Queued",
+    "INGESTING": "Preparing",
+    "PROCESSING": "Processing",
+    "TRANSLATING": "Translating",
+    "RENDERING": "Rendering",
+    "FINALIZING": "Finalizing",
+    "COMPLETED": "Completed",
+    "PARTIAL": "Partially done",
+    "FAILED": "Failed",
+    "CANCELLED": "Cancelled",
+    "EXPIRED": "Expired"
+  },
+  "pageStatus": {
+    "pending": "Waiting",
+    "processing": "Processing",
+    "ready": "Done",
+    "failed": "Failed",
+    "review": "Needs review"
+  },
+  "reviewReasons": {
+    "LOW_OCR_CONFIDENCE": "Text recognition is uncertain",
+    "TRANSLATION_UNCERTAIN": "Translation may be inaccurate",
+    "TEXT_OVERFLOW": "Text may not fit its bubble",
+    "NO_TEXT_FOUND": "No text was found"
+  },
+  "paymentStatus": {
+    "pending": "Pending",
+    "paid": "Paid",
+    "cancelled": "Cancelled",
+    "failed": "Failed",
+    "refunded": "Refunded"
+  },
+  "creditKind": {
+    "signup_bonus": "Sign-up bonus",
+    "purchase": "Purchase",
+    "reserve": "Reserved for job",
+    "release": "Released",
+    "refund": "Refund",
+    "admin_grant": "Added by support",
+    "admin_revoke": "Removed by support"
+  },
+  "userStatus": {
+    "active": "Active",
+    "suspended": "Suspended",
+    "deleted": "Deleted"
+  },
+  "languages": {
+    "Chinese": "Chinese",
+    "Korean": "Korean",
+    "Japanese": "Japanese",
+    "Vietnamese": "Vietnamese",
+    "English": "English"
+  },
+  "editor": {
+    "title": "Editor",
+    "noPages": "This job has no pages yet.",
+    "pageList": "Pages",
+    "pageN": "Page {n}",
+    "pageOf": "Page {n} of {total}",
+    "toolbar": "Editor tools",
+    "back": "Job",
+    "undo": "Undo",
+    "redo": "Redo",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "fit": "Fit to screen",
+    "imageView": "Image",
+    "views": {
+      "original": "Original",
+      "clean": "Cleaned",
+      "output": "Output"
+    },
+    "boxes": "Show text boxes",
+    "regenerate": "Regenerate",
+    "saveFirst": "Save your changes first",
+    "regen": {
+      "typeset": "Re-typeset",
+      "translation": "Re-translate",
+      "inpaint": "Re-clean background",
+      "free": "Free",
+      "costs": "Costs {count, plural, one {# credit} other {# credits}}",
+      "confirm": "This costs {count, plural, one {# credit} other {# credits}}, the same as one page. Current text on this page may be replaced."
+    },
+    "save": "Save",
+    "saving": "Saving…",
+    "rendering": "Rendering the page…",
+    "updated": "Output updated.",
+    "renderFailed": "The page could not be rendered. Try again or regenerate it.",
+    "renderSlow": "Rendering is taking longer than usual. Reload the page in a moment to see the result.",
+    "unsaved": "You have unsaved changes. Leave without saving?",
+    "unsavedShort": "Unsaved changes",
+    "allSaved": "All changes saved",
+    "conflict": "This page was changed elsewhere, so we reloaded the latest version. Please re-apply your edits.",
+    "insufficient": "You don’t have enough credits for this action.",
+    "buyCredits": "Buy credits",
+    "notEditable": "This page is not ready for editing yet.",
+    "pageImage": "Page {n}",
+    "regionLabel": "Text box {n}: {text}",
+    "panel": "Text box properties",
+    "selectHint": "Select a text box on the page or from the list to edit it.",
+    "noRegions": "No text was detected on this page.",
+    "region": "Text box {n}",
+    "deselect": "Deselect",
+    "sourceText": "Original text",
+    "confidence": "Recognition confidence: {pct}%",
+    "translation": "Translation",
+    "fontSize": "Font size",
+    "auto": "Auto",
+    "alignment": "Alignment",
+    "align": {
+      "left": "Align left",
+      "center": "Align center",
+      "right": "Align right"
+    },
+    "color": "Text colour",
+    "outline": "Outline",
+    "uppercase": "Uppercase",
+    "shortcutsTitle": "Keyboard shortcuts",
+    "shortcuts": [
+      "Ctrl/⌘ + Z — undo, Ctrl/⌘ + Shift + Z — redo",
+      "Ctrl/⌘ + S — save",
+      "Arrow keys — move the selected box (Shift for 10 px)",
+      "Esc — deselect",
+      "Space + drag, or drag an empty area — pan",
+      "+ / − / 0 — zoom in, zoom out, fit"
+    ]
+  },
+  "billing": {
+    "title": "Billing",
+    "balance": "Credit balance",
+    "credits": "{count, plural, one {# credit} other {# credits}}",
+    "buyTitle": "Buy credits",
+    "buyNote": "You will be redirected to our payment provider. Credits are added once the payment is confirmed.",
+    "noProducts": "No credit packs are available right now.",
+    "buy": "Buy",
+    "payments": "Payment history",
+    "transactions": "Credit history",
+    "noPayments": "No payments yet.",
+    "noTransactions": "No credit activity yet.",
+    "viewJob": "View job",
+    "col": {
+      "date": "Date",
+      "product": "Pack",
+      "credits": "Credits",
+      "amount": "Amount",
+      "status": "Status",
+      "kind": "Type",
+      "details": "Details"
+    }
+  },
+  "billingReturn": {
+    "title": "Payment status",
+    "missing": "No payment was specified.",
+    "status": {
+      "pending": "Waiting for payment confirmation",
+      "paid": "Payment confirmed",
+      "cancelled": "Payment cancelled",
+      "failed": "Payment failed",
+      "refunded": "Payment refunded"
+    },
+    "credits": "{count, plural, one {# credit} other {# credits}}",
+    "explain": "Credits are added to your account only after the payment provider confirms the payment. This usually takes a few seconds but can take longer.",
+    "checking": "Checking the payment status…",
+    "timeout": "We haven’t received confirmation yet. If you completed the payment, your credits will appear shortly.",
+    "checkAgain": "Check again",
+    "back": "Back to billing",
+    "startTranslating": "Start translating"
+  },
+  "usage": {
+    "title": "Usage",
+    "description": "Every change to your credit balance: purchases, jobs and refunds."
+  },
+  "settings": {
+    "title": "Settings",
+    "save": "Save",
+    "saved": "Saved.",
+    "language": {
+      "title": "Language",
+      "description": "Used for the interface and for emails we send you."
+    },
+    "password": {
+      "title": "Change password",
+      "description": "You will stay logged in here; other sessions will be logged out.",
+      "current": "Current password",
+      "new": "New password",
+      "confirm": "Confirm new password",
+      "hint": "10 to 128 characters.",
+      "mismatch": "The new passwords do not match.",
+      "submit": "Change password",
+      "saved": "Your password has been changed."
+    },
+    "delete": {
+      "title": "Delete account",
+      "description": "Permanently delete your account, your uploaded pages and your results.",
+      "button": "Delete my account",
+      "confirmTitle": "Delete your account?",
+      "confirmBody": "You will be logged out and your files, jobs and personal data will be scheduled for deletion. Remaining credits are lost. Payment and accounting records are kept for as long as the law requires. This cannot be undone.",
+      "confirm": "Delete account",
+      "password": "Enter your password to confirm"
+    }
+  },
+  "forbidden": {
+    "title": "403 — Access denied",
+    "body": "You don’t have permission to view this page.",
+    "back": "Back to dashboard"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "The page you are looking for doesn’t exist or has moved.",
+    "home": "Go to the homepage"
+  },
+  "admin": {
+    "title": "Admin",
+    "nav": {
+      "label": "Admin sections",
+      "overview": "Overview",
+      "users": "Users",
+      "jobs": "Jobs",
+      "payments": "Payments",
+      "credits": "Credits",
+      "providers": "AI providers",
+      "costs": "Costs",
+      "system": "System",
+      "audit": "Audit log"
+    },
+    "overview": {
+      "title": "Overview",
+      "users": "Users",
+      "activeUsers": "Active users (30 days)",
+      "pages": "Pages processed",
+      "revenue": "Revenue",
+      "aiCost": "AI cost",
+      "margin": "Gross margin",
+      "costPerPage": "Avg. cost per page",
+      "avgTime": "Avg. processing time",
+      "seconds": "{s} s",
+      "failedJobs": "Failed jobs (30 days)",
+      "jobsByStatus": "Jobs by status",
+      "costs30": "Daily costs — last 30 days"
+    },
+    "costs": {
+      "title": "Costs",
+      "range": "Time range",
+      "lastDays": "Last {count} days",
+      "empty": "No data for this period.",
+      "date": "Date",
+      "pages": "Pages",
+      "aiCost": "AI cost",
+      "revenue": "Revenue",
+      "total": "Total"
+    },
+    "users": {
+      "title": "Users",
+      "search": "Search",
+      "searchPlaceholder": "Email address",
+      "empty": "No users found.",
+      "email": "Email",
+      "role": "Role",
+      "status": "Status",
+      "credits": "Credits",
+      "created": "Created",
+      "unverified": "unverified",
+      "suspend": "Suspend",
+      "restore": "Restore",
+      "suspendTitle": "Suspend this user?",
+      "suspendBody": "The user will be logged out and cannot use the service until restored.",
+      "restoreTitle": "Restore this user?",
+      "restoreBody": "The user will be able to log in and use the service again.",
+      "reason": "Reason (required, stored in the audit log)",
+      "adjustCredits": "Adjust credits",
+      "jobs": "Recent jobs",
+      "noJobs": "No jobs.",
+      "transactions": "Credit history",
+      "noTransactions": "No credit activity."
+    },
+    "credits": {
+      "title": "Grant or revoke credits",
+      "direction": "Action",
+      "grant": "Grant",
+      "revoke": "Revoke",
+      "amount": "Amount",
+      "reason": "Reason (required)",
+      "apply": "Apply",
+      "confirmTitle": "Confirm credit change",
+      "confirmGrant": "Grant {count, plural, one {# credit} other {# credits}} to {email}?",
+      "confirmRevoke": "Remove {count, plural, one {# credit} other {# credits}} from {email}? The balance cannot go below zero.",
+      "done": "Balance updated.",
+      "noMatch": "No users match this search.",
+      "select": "Select",
+      "selected": "Selected: {email}.",
+      "openUsers": "Open users"
+    },
+    "jobs": {
+      "title": "Jobs",
+      "filter": "Filter by status",
+      "empty": "No jobs found.",
+      "job": "Job",
+      "user": "User",
+      "status": "Status",
+      "pages": "Pages",
+      "credits": "Charged / reserved",
+      "created": "Created",
+      "actions": "Actions",
+      "retry": "Retry",
+      "retryTitle": "Retry failed pages?",
+      "retryBody": "Failed pages of this job by {email} will be queued again.",
+      "cancel": "Cancel",
+      "cancelTitle": "Cancel this job?",
+      "cancelBody": "Processing for {email} stops and unprocessed pages are not charged."
+    },
+    "payments": {
+      "title": "Payments",
+      "filter": "Filter by status",
+      "empty": "No payments found.",
+      "date": "Date",
+      "user": "User",
+      "product": "Pack",
+      "amount": "Amount",
+      "credits": "Credits",
+      "provider": "Provider",
+      "status": "Status",
+      "actions": "Actions",
+      "refund": "Record refund",
+      "refundTitle": "Record a refund?",
+      "refundBody": "Record that {amount} was refunded to {email} through the payment provider or bank. This does not move money by itself.",
+      "reason": "Reason (required)",
+      "revoke": "Also remove the {count, plural, one {# credit} other {# credits}} from this purchase"
+    },
+    "providers": {
+      "title": "AI providers",
+      "note": "Lower priority numbers are tried first. API keys are configured on the server, not here.",
+      "empty": "No providers configured.",
+      "healthy": "Healthy",
+      "unhealthy": "Unhealthy",
+      "enabled": "Enabled",
+      "model": "Model",
+      "priority": "Priority",
+      "priorityHint": "Lower runs first",
+      "inputPrice": "Input price (USD / 1M)",
+      "outputPrice": "Output price (USD / 1M)",
+      "save": "Save changes",
+      "reset": "Reset",
+      "confirmTitle": "Apply changes to {name}?"
+    },
+    "system": {
+      "title": "System",
+      "settings": "Settings",
+      "saveSettings": "Save settings",
+      "confirmSettings": "Apply these settings?",
+      "keys": {
+        "credits_per_page_clean": "Credits per page (clean)",
+        "credits_per_page_overlay": "Credits per page (overlay)",
+        "signup_bonus": "Sign-up bonus (credits)",
+        "usd_vnd_rate": "USD → VND rate",
+        "max_pages_per_job": "Max pages per job",
+        "max_concurrent_jobs": "Max concurrent jobs",
+        "retention_days": "Retention (days)"
+      },
+      "products": "Credit packs",
+      "noProducts": "No credit packs yet.",
+      "p": {
+        "code": "Code",
+        "name": "Name",
+        "credits": "Credits",
+        "price": "Price",
+        "priceHint": "In the smallest currency unit (VND has none).",
+        "currency": "Currency",
+        "sort": "Sort order",
+        "active": "Active",
+        "actions": "Actions",
+        "yes": "Yes",
+        "no": "No",
+        "edit": "Edit",
+        "new": "New pack",
+        "editTitle": "Edit pack {code}",
+        "newTitle": "New credit pack",
+        "save": "Save",
+        "deactivateWarning": "Deactivating hides this pack from the pricing page and checkout."
+      }
+    },
+    "audit": {
+      "title": "Audit log",
+      "empty": "No entries yet.",
+      "date": "Date",
+      "actor": "Actor",
+      "action": "Action",
+      "target": "Target",
+      "details": "Details",
+      "ip": "IP"
+    }
+  }
+}

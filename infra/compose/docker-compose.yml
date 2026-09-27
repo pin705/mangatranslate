@@ -88,7 +88,9 @@ services:
       minio-init: { condition: service_completed_successfully }
 
   web:
-    build: { context: ../../apps/web }
+    build:
+      context: ../../apps/web
+      args: { API_URL: "http://api:8000", NEXT_PUBLIC_SITE_URL: "http://localhost:3000" }
     environment:
       API_URL: http://api:8000
       NEXT_PUBLIC_SITE_URL: http://localhost:3000

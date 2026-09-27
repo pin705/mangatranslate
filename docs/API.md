@@ -184,6 +184,7 @@ Credits are granted only by a verified provider webhook, never by the return URL
 | POST | `/admin/users/{id}/credits` | `{ amount, reason }` (negative = revoke; cannot go below zero) |
 | GET | `/admin/jobs?status=&limit&offset` | → `{ items: (Job & { user_email })[], total }` |
 | POST | `/admin/jobs/{id}/cancel` \| `/retry` | – |
+| POST | `/admin/jobs/{id}/takedown` | `{ reason }`: copyright/abuse removal, cancels and deletes all files (audited) |
 | GET | `/admin/payments?status=&limit&offset` | → `{ items: (Payment & { user_email, provider })[], total }` |
 | POST | `/admin/payments/{id}/refund` | `{ reason, revoke_credits: true }` — records a refund made through the provider/bank |
 | GET | `/admin/providers` | → `[ { id, kind, name, base_url, model, enabled, priority, input_price_per_1m, output_price_per_1m, healthy } ]` |

@@ -187,6 +187,17 @@ def admin_retry(job_id: uuid.UUID, request: Request, admin: m.User = Depends(adm
     return job_out(job, page_counts(db, [job.id])[job.id])
 
 
+@router.post("/jobs/{job_id}/takedown")
+def admin_takedown(job_id: uuid.UUID, body: ReasonIn, request: Request, admin: m.User = Depends(admin_user),
+                   db: DB = Depends(get_db)):
+    """Copyright/abuse removal: cancels processing and deletes every stored file of the job."""
+    job = _job(db, job_id)
+    jobs.delete(db, job)
+    audit(db, admin, "ADMIN_TAKEDOWN_JOB", "job", job.id, client_ip(request), reason=body.reason, user_id=str(job.user_id))
+    db.commit()
+    return {"status": job.status}
+
+
 # --- payments -------------------------------------------------------------------
 
 @router.get("/payments")
