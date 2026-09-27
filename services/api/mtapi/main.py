@@ -11,7 +11,7 @@ from . import errors, storage
 from .config import get_settings
 from .db import engine
 from .logs import request_id, setup_logging
-from .routers import admin, auth, billing, jobs
+from .routers import admin, auth, billing, jobs, series
 
 settings = get_settings()
 settings.check()
@@ -57,7 +57,7 @@ async def guard(request: Request, call_next):
     return response
 
 
-for r in (auth.router, jobs.router, billing.router, admin.router):
+for r in (auth.router, jobs.router, series.router, billing.router, admin.router):
     app.include_router(r, prefix="/api/v1")
 if "dev" in settings.payment_providers and not settings.is_production:
     app.include_router(billing.dev_router, prefix="/api/v1")

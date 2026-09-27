@@ -32,6 +32,7 @@ def _port() -> int:
 
 class StubAI(BaseHTTPRequestHandler):
     calls: list[str] = []
+    previous: list[list] = []
 
     def log_message(self, *a):
         pass
@@ -44,8 +45,11 @@ class StubAI(BaseHTTPRequestHandler):
             reply = json.dumps([{"id": i, "text": f"测试文本{i}"} for i in range(1, 60)])
         else:
             StubAI.calls.append("translate")
-            lines = json.loads(content)["lines"]
-            reply = json.dumps({"translations": {x["id"]: f"Xin chào sư tỷ ({x['id']})" for x in lines}})
+            req = json.loads(content)
+            lines = req["lines"]
+            StubAI.previous.append(req.get("previous_lines") or [])
+            reply = json.dumps({"translations": {x["id"]: f"Xin chào sư tỷ ({x['id']})" for x in lines},
+                                "terms": [{"source": "测试文本1", "target": "Lâm Phong"}]})
         out = json.dumps({"choices": [{"message": {"content": reply}}],
                           "usage": {"prompt_tokens": 1000, "completion_tokens": 100}}).encode()
         self.send_response(200)
@@ -95,7 +99,6 @@ def stack():
     import ai as ai_mod
     ai_mod.seed_providers()
     from fastapi.testclient import TestClient
-
     from mtapi.main import app
     yield TestClient(app)
     moto.stop()
@@ -104,9 +107,10 @@ def stack():
 
 def drain(max_tasks: int = 200) -> list[str]:
     """Run queued tasks in-process until the queue is empty (a real worker does the same in a loop)."""
-    import runner
     from mtapi import queue
     from mtapi.db import SessionLocal
+
+    import runner
 
     kinds = []
     for _ in range(max_tasks):
@@ -121,9 +125,8 @@ def drain(max_tasks: int = 200) -> list[str]:
 
 def test_full_chapter(stack):
     import requests
-    from sqlalchemy import text
-
     from mtapi.db import SessionLocal
+    from sqlalchemy import text
 
     client = stack
     email = "reader@example.com"
@@ -205,3 +208,59 @@ def test_bad_upload_fails_without_charge(stack):
     assert job["status"] == "FAILED" and job["error"]["code"] == "UPLOAD_INVALID"
     assert "Traceback" not in job["error"]["message"]
     assert client.get("/api/v1/credits").json()["balance"] == before
+
+
+def _cbz(*names) -> bytes:
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "w") as z:
+        for name in names:
+            z.write(SAMPLE / name, name)
+    return buf.getvalue()
+
+
+def _chapter(client, series_id: str, data: bytes) -> dict:
+    import requests
+    up = client.post("/api/v1/uploads", json={"filename": "c.cbz", "size": len(data), "content_type": "x"}).json()
+    requests.put(up["upload_url"], data=data, headers=up["headers"], timeout=30)
+    job = client.post("/api/v1/jobs", json={"upload_ids": [up["id"]], "series_id": series_id, "source_lang": "Korean",
+                                            "target_lang": "English"}).json()
+    drain()
+    return client.get(f"/api/v1/jobs/{job['id']}").json()
+
+
+def test_series_memory_sharing_and_notifications(stack):
+    import requests
+
+    client = stack
+    client.post("/api/v1/auth/login", json={"email": "reader@example.com", "password": "correct horse battery"})
+    series = client.post("/api/v1/series", json={"title": "Kiếm lai", "source_lang": "Chinese",
+                                                 "target_lang": "Vietnamese"}).json()
+    client.patch(f"/api/v1/series/{series['id']}", json={"glossary": [{"source": "师姐", "target": "sư tỷ"}]})
+
+    ch1 = _chapter(client, series["id"], _cbz("E06P02.jpg"))
+    assert ch1["status"] == "COMPLETED" and ch1["series_id"] == series["id"]
+    assert (ch1["source_lang"], ch1["target_lang"]) == ("Chinese", "Vietnamese")  # the series decides the pair
+    detail = client.get(f"/api/v1/series/{series['id']}").json()
+    terms = {t["source"]: t for t in detail["glossary"]}
+    assert terms["师姐"]["auto"] is False and terms["测试文本1"] == {"source": "测试文本1", "target": "Lâm Phong",
+                                                                    "auto": True}
+    ch2 = _chapter(client, series["id"], _cbz("E06P03.jpg"))
+    assert ch2["status"] == "COMPLETED" and StubAI.previous[-1], "chapter 2 gets chapter 1's last lines as context"
+    assert [c["id"] for c in client.get(f"/api/v1/series/{series['id']}").json()["chapters"]] == [ch1["id"], ch2["id"]]
+
+    kinds = [n["kind"] for n in client.get("/api/v1/notifications").json()["items"]]
+    assert kinds.count("job_completed") >= 2
+    assert client.post("/api/v1/notifications/read", json={"all": True}).status_code == 204
+    assert client.get("/api/v1/notifications").json()["unread"] == 0
+
+    share = client.post(f"/api/v1/jobs/{ch1['id']}/share", json={"days": 3}).json()
+    token = share["url"].rsplit("/s/", 1)[1]
+    anon = type(client)(client.app)
+    public = anon.get(f"/api/v1/shared/{token}").json()
+    assert public["title"] == ch1["title"] and len(public["pages"]) == 1
+    leaked = [x for x in (ch1["id"], "/users/", "/jobs/") if x in json.dumps(public)]
+    assert not leaked, f"public share reveals internal IDs: {leaked}"
+    assert requests.get(public["pages"][0]["url"], timeout=30).status_code == 200
+    assert client.get(f"/api/v1/jobs/{ch1['id']}/share").json()["views"] == 1
+    client.delete(f"/api/v1/jobs/{ch1['id']}/share")
+    assert anon.get(f"/api/v1/shared/{token}").status_code == 404

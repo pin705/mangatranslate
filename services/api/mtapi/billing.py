@@ -10,11 +10,12 @@ from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session as DB
 
-from . import ledger, queue
+from . import app_settings, ledger, queue
 from . import models as m
 from .app_settings import audit
 from .config import get_settings
 from .errors import AppError
+from .notify import notify
 from .payments import default_provider, get_provider
 from .payments.base import InvalidSignature, ManualRefundRequired, ProviderEvent
 from .security import now
@@ -30,7 +31,7 @@ def create_checkout(db: DB, user: m.User, product_code: str) -> m.Payment:
     for _ in range(5):
         payment = m.Payment(user_id=user.id, product_id=product.id, provider=provider.name,
                             order_code=10**12 + secrets.randbelow(9 * 10**12), amount=product.price_amount,
-                            currency=product.currency, credits=product.credits)
+                            currency=product.currency, credits=product.credits + (product.bonus_credits or 0))
         try:
             with db.begin_nested():
                 db.add(payment)
@@ -84,15 +85,36 @@ def handle_event(db: DB, provider: str, event: ProviderEvent) -> None:
         ledger.apply(db, payment.user_id, payment.credits, "purchase", payment_id=payment.id,
                      idempotency_key=f"purchase:{payment.id}", reason=f"order {payment.order_code}")
         product = db.get(m.Product, payment.product_id)
+        notify(db, user.id, "payment_succeeded", dedupe_key=f"paid:{payment.id}", credits=payment.credits,
+               amount=payment.amount, currency=payment.currency, payment_id=str(payment.id))
+        _referral_reward(db, user, payment)
         queue.enqueue(db, "email.send", user_id=user.id, payload={"to": user.email, "template": "payment_receipt",
                       "locale": user.locale, "ctx": {"amount": f"{payment.amount:,}", "currency": payment.currency,
                       "product": product.name, "credits": payment.credits, "order_code": payment.order_code}})
     elif event.status in ("cancelled", "failed") and payment.status == "pending":
         payment.status = event.status
         if event.status == "failed":
+            notify(db, user.id, "payment_failed", dedupe_key=f"failed:{payment.id}", payment_id=str(payment.id))
             queue.enqueue(db, "email.send", user_id=user.id, payload={"to": user.email, "template": "payment_failed",
                           "locale": user.locale, "ctx": {"order_code": payment.order_code,
                                                          "link": f"{get_settings().web_url}/billing"}})
+
+
+def _referral_reward(db: DB, user: m.User, payment: m.Payment) -> None:
+    """First paid purchase of an invited user rewards both sides once. Paid-only, so fake sign-ups earn nothing."""
+    if not user.referred_by:
+        return
+    earlier = db.execute(select(m.Payment.id).where(m.Payment.user_id == user.id, m.Payment.status.in_(
+        ("paid", "refunded")), m.Payment.id != payment.id).limit(1)).first()
+    referrer = db.get(m.User, user.referred_by)
+    if earlier or not referrer or referrer.status != "active":
+        return
+    bonus = int(app_settings.get(db, "referral_bonus"))
+    if bonus <= 0:
+        return
+    for who, key in ((referrer, f"referral:referrer:{user.id}"), (user, f"referral:referee:{user.id}")):
+        if ledger.apply(db, who.id, bonus, "referral", payment_id=payment.id, idempotency_key=key, reason="referral"):
+            notify(db, who.id, "referral_reward", dedupe_key=key, credits=bonus)
 
 
 def process_webhook(db: DB, provider_name: str, body: bytes, headers: dict[str, str]) -> None:

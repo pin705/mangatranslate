@@ -117,6 +117,30 @@ def consume_email_token(db: DB, token: str, purpose: str) -> m.User:
     return user
 
 
+def issue_login_code(db: DB, user: m.User) -> str:
+    """6-digit one-time code for passwordless login, valid 10 minutes. Guessing is bounded by rate limits."""
+    code = f"{secrets.randbelow(10**6):06d}"
+    db.execute(update(m.EmailToken).where(
+        m.EmailToken.user_id == user.id, m.EmailToken.purpose == "login", m.EmailToken.used_at.is_(None)
+    ).values(used_at=now()))
+    db.add(m.EmailToken(id=sha256(f"login:{user.id}:{code}"), user_id=user.id, purpose="login",
+                        expires_at=now() + timedelta(minutes=10)))
+    return code
+
+
+def consume_login_code(db: DB, user: m.User, code: str) -> None:
+    row = db.execute(select(m.EmailToken).where(m.EmailToken.id == sha256(f"login:{user.id}:{code}"),
+                                                m.EmailToken.purpose == "login").with_for_update()).scalar_one_or_none()
+    if not row or row.used_at or row.expires_at <= now():
+        raise AppError(400, "INVALID_TOKEN", "This code is wrong or has expired.")
+    row.used_at = now()
+
+
+def new_referral_code() -> str:
+    alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # no 0/O/1/I
+    return "".join(secrets.choice(alphabet) for _ in range(8))
+
+
 # --- rate limiting -----------------------------------------------------------
 
 def rate_limit(key: str, limit: int, window_seconds: int) -> None:

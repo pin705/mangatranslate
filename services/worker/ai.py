@@ -14,11 +14,10 @@ from dataclasses import dataclass
 from decimal import Decimal
 
 import requests
-from sqlalchemy import func, select, text
-
 from mtapi import app_settings
 from mtapi import models as m
 from mtapi.db import session_scope
+from sqlalchemy import func, select, text
 
 log = logging.getLogger("worker.ai")
 
@@ -150,7 +149,10 @@ def _system(source: str, target: str, glossary: list[dict]) -> str:
         "Keep character names, places and terms consistent with the glossary and previous lines.",
         "Preserve the tone: shouting stays emphatic, whispers stay soft. Keep it short enough to fit a speech bubble.",
         "Keep placeholders such as {name}, %s or [1] unchanged. Do not add notes or explanations.",
-        'Reply with JSON only: {"translations": {"<id>": "<translation>", ...}} containing exactly the given ids.',
+        'Reply with JSON only: {"translations": {"<id>": "<translation>", ...}, "terms": [{"source": "...", '
+        '"target": "..."}]} with exactly the given ids. In "terms", list proper nouns that appear in these lines '
+        "(character names, places, sects, techniques, titles) and are not in the glossary, with the translation you "
+        "used, so later chapters stay consistent. Use [] if there are none.",
     ]
     if glossary:
         terms = "\n".join(f"- {g['source']} → {g['target']}" for g in glossary)
@@ -196,13 +198,33 @@ def validate(batch: dict[str, str], reply: dict, target: str) -> tuple[dict[str,
     return accepted, retry, flagged
 
 
+def new_terms(reply: dict, lines: dict[str, str], glossary: list[dict], target: str) -> list[dict]:
+    """Terms the model reports, kept only if the source really occurs in the chapter and is not known yet."""
+    known = {g["source"] for g in glossary}
+    text = "\n".join(lines.values())
+    out = []
+    for t in (reply.get("terms") if isinstance(reply, dict) else None) or []:
+        if not isinstance(t, dict):
+            continue
+        src, dst = str(t.get("source") or "").strip(), str(t.get("target") or "").strip()
+        if (not src or not dst or len(src) > 100 or len(dst) > 100 or src in known or src not in text
+                or (target in ("Vietnamese", "English") and _CJK.search(dst))):
+            continue
+        known.add(src)
+        out.append({"source": src, "target": dst, "auto": True})
+    return out
+
+
 def translate(lines: dict[str, str], source: str, target: str, glossary: list[dict], ctx: dict,
-              attempts: int = 3) -> tuple[dict[str, str], set[str]]:
-    """Translate {id: text} in chapter order. Returns (translations, ids needing review). Missing ids are
-    retried, then the next provider is tried; ids still missing are returned absent (flagged by the caller)."""
+              attempts: int = 3, previous: list[dict] | None = None) -> tuple[dict[str, str], set[str], list[dict]]:
+    """Translate {id: text} in chapter order. Returns (translations, ids needing review, newly learned terms).
+    Missing ids are retried, then the next provider is tried; ids still missing are returned absent.
+    `previous` primes the context with the end of the previous chapter of the same series."""
     system = _system(source, target, glossary)
     done: dict[str, str] = {}
     flagged: set[str] = set()
+    learned: list[dict] = []
+    context = list(previous or [])
     keys = list(lines)
     for start in range(0, len(keys), BATCH):
         pending = {k: lines[k] for k in keys[start:start + BATCH]}
@@ -211,7 +233,8 @@ def translate(lines: dict[str, str], source: str, target: str, glossary: list[di
                 if not pending:
                     break
                 check_budget()
-                previous = [{"source": lines[k], "translation": done[k]} for k in list(done)[-15:]]
+                recent = [{"source": lines[k], "translation": done[k]} for k in list(done)[-15:]]
+                previous = (context + recent)[-15:]
                 user = json.dumps({"previous_lines": previous, "lines": [{"id": k, "text": v} for k, v in pending.items()]},
                                   ensure_ascii=False)
                 started = time.monotonic()
@@ -224,10 +247,11 @@ def translate(lines: dict[str, str], source: str, target: str, glossary: list[di
                     break  # next provider
                 record(p, ctx, "translation", usage, int((time.monotonic() - started) * 1000), ok=True)
                 ok, retry, warn = validate(pending, reply, target)
+                learned += new_terms(reply, pending, glossary + learned, target)
                 done.update(ok)
                 flagged |= warn
                 pending = {k: pending[k] for k in retry}
             if not pending:
                 break
         flagged |= set(pending)
-    return done, flagged
+    return done, flagged, learned

@@ -1,11 +1,11 @@
 import re
 import uuid
 
-from fastapi import APIRouter, Depends, Header, Query, Response
+from fastapi import APIRouter, Depends, Header, Query, Request, Response
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session as DB
 
-from .. import app_settings, jobs, ledger, queue, storage
+from .. import jobs, ledger, queue, storage
 from .. import models as m
 from ..config import get_settings
 from ..db import get_db
@@ -18,12 +18,13 @@ from ..schemas import (
     PageOut,
     RegenerateIn,
     RegionsIn,
+    ShareIn,
     UploadIn,
     UploadOut,
     job_out,
     page_out,
 )
-from ..security import rate_limit
+from ..security import client_ip, now, rate_limit, sha256
 
 router = APIRouter()
 
@@ -89,7 +90,7 @@ def create_job(body: JobIn, response: Response, user: m.User = Depends(verified_
     job, created = jobs.create(
         db, user, title=body.title.strip(), upload_ids=body.upload_ids, source_lang=body.source_lang,
         target_lang=body.target_lang, mode=body.mode, glossary=[g.model_dump() for g in body.glossary],
-        idempotency_key=idempotency_key,
+        idempotency_key=idempotency_key, series_id=body.series_id,
     )
     db.commit()
     if not created:
@@ -212,7 +213,7 @@ def regenerate(page_id: uuid.UUID, body: RegenerateIn, user: m.User = Depends(ve
     queue_name = get_settings().model_queue if body.what == "inpaint" else "default"
     payload = {}
     if body.what != "typeset":
-        cost = app_settings.credits_per_page(db, job.mode)
+        cost = page.credits or job.credits_per_page
         key = f"regen:{page.id}:{page.version}"
         ledger.apply(db, user.id, -cost, "reserve", job_id=job.id, idempotency_key=key, reason=f"regenerate {body.what}")
         payload = {"reserved": cost, "reservation": key}
@@ -220,3 +221,79 @@ def regenerate(page_id: uuid.UUID, body: RegenerateIn, user: m.User = Depends(ve
                   dedupe_key=f"{kind}:{page.id}:{page.version}")
     db.commit()
     return page_out(page, detail=True)
+
+
+# --- sharing ----------------------------------------------------------------------------
+
+def _active_share(db: DB, job: m.Job) -> m.ShareLink | None:
+    return db.execute(select(m.ShareLink).where(m.ShareLink.job_id == job.id, m.ShareLink.revoked_at.is_(None),
+                                                m.ShareLink.expires_at > now())).scalars().first()
+
+
+def _share_out(link: m.ShareLink | None, url: str | None = None) -> dict:
+    if not link:
+        return {"active": False}
+    return {"active": True, "url": url, "token_hint": link.token_hint, "created_at": link.created_at,
+            "expires_at": link.expires_at, "views": link.views}
+
+
+@router.get("/jobs/{job_id}/share")
+def get_share(job_id: uuid.UUID, user: m.User = Depends(current_user), db: DB = Depends(get_db)):
+    return _share_out(_active_share(db, own_job(db, user, job_id)))  # the full URL is only shown when created
+
+
+@router.post("/jobs/{job_id}/share", status_code=201)
+def create_share(job_id: uuid.UUID, body: ShareIn, user: m.User = Depends(verified_user), db: DB = Depends(get_db)):
+    """Unlisted read-only link (noindex), replaces any previous link of this chapter."""
+    import secrets
+    from datetime import timedelta
+
+    rate_limit(f"share:{user.id}", 60, 3600)
+    job = own_job(db, user, job_id)
+    if job.status not in ("COMPLETED", "PARTIAL"):
+        raise AppError(409, "CONFLICT", "Only finished chapters can be shared.")
+    _revoke_shares(db, job)
+    token, folder = secrets.token_urlsafe(18), secrets.token_hex(16)
+    # Snapshot the pages under shares/ so public URLs carry no user/job IDs.
+    # ponytail: synchronous server-side copies (~50 ms each); move to a worker task for very long chapters.
+    pages = db.execute(select(m.Page).where(m.Page.job_id == job.id, m.Page.status == "ready")).scalars().all()
+    for p in pages:
+        storage.copy(p.output_key, f"shares/{folder}/{p.index:04d}.jpg")
+    expires = min(now() + timedelta(days=body.days), job.expires_at or now() + timedelta(days=body.days))
+    link = m.ShareLink(id=sha256(token), job_id=job.id, user_id=user.id, token_hint=token[:6], folder=folder,
+                       expires_at=expires)
+    db.add(link)
+    db.commit()
+    return _share_out(link, f"{get_settings().web_url}/s/{token}")
+
+
+def _revoke_shares(db: DB, job: m.Job) -> None:
+    for link in db.execute(select(m.ShareLink).where(m.ShareLink.job_id == job.id, m.ShareLink.revoked_at.is_(None))
+                           ).scalars().all():
+        link.revoked_at = now()
+        storage.delete_prefix(f"shares/{link.folder}/")
+
+
+@router.delete("/jobs/{job_id}/share", status_code=204)
+def revoke_share(job_id: uuid.UUID, user: m.User = Depends(current_user), db: DB = Depends(get_db)):
+    _revoke_shares(db, own_job(db, user, job_id))
+    db.commit()
+
+
+@router.get("/shared/{token}")
+def shared(token: str, request: Request, db: DB = Depends(get_db)):
+    """Public reader data for a share link. Everything else about the owner stays private."""
+    rate_limit(f"shared:{client_ip(request)}", 300, 3600)
+    link = db.get(m.ShareLink, sha256(token[:64]))
+    job = db.get(m.Job, link.job_id) if link else None
+    if (not link or link.revoked_at or link.expires_at <= now() or not job or job.deleted_at
+            or job.status not in ("COMPLETED", "PARTIAL")):
+        raise AppError(404, "NOT_FOUND", "This link has expired or was removed.")
+    link.views += 1
+    db.commit()
+    pages = db.execute(select(m.Page).where(m.Page.job_id == job.id, m.Page.status == "ready").order_by(m.Page.index)
+                       ).scalars().all()
+    return {"title": job.title, "source_lang": job.source_lang, "target_lang": job.target_lang,
+            "expires_at": link.expires_at,
+            "pages": [{"index": p.index, "width": p.width, "height": p.height,
+                       "url": storage.presign_get(f"shares/{link.folder}/{p.index:04d}.jpg")} for p in pages]}

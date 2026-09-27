@@ -14,6 +14,10 @@ TEMPLATES: dict[str, dict[str, tuple[str, str]]] = {
         "vi": ("Xác nhận email của bạn", "Chào bạn,\n\nBấm vào liên kết sau để xác nhận email:\n{link}\n\nLiên kết hết hạn sau 24 giờ."),
         "en": ("Verify your e-mail", "Hi,\n\nConfirm your e-mail address with this link:\n{link}\n\nThe link expires in 24 hours."),
     },
+    "login_code": {
+        "vi": ("Mã đăng nhập: {code}", "Mã đăng nhập của bạn là {code}\n\nMã hết hạn sau 10 phút. Nếu không phải bạn, hãy bỏ qua email này."),
+        "en": ("Your login code: {code}", "Your login code is {code}\n\nIt expires in 10 minutes. If this wasn't you, ignore this e-mail."),
+    },
     "reset": {
         "vi": ("Đặt lại mật khẩu", "Có yêu cầu đặt lại mật khẩu cho tài khoản của bạn:\n{link}\n\nLiên kết hết hạn sau 1 giờ. Nếu không phải bạn, hãy bỏ qua email này."),
         "en": ("Reset your password", "Someone asked to reset your password:\n{link}\n\nThe link expires in 1 hour. If this wasn't you, ignore this e-mail."),

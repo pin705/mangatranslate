@@ -18,6 +18,18 @@ class RegisterIn(BaseModel):
     email: EmailStr
     password: str = Field(min_length=10, max_length=128)
     locale: Locale = "vi"
+    ref: str | None = Field(default=None, max_length=16)
+
+
+class LoginCodeRequestIn(BaseModel):
+    email: EmailStr
+    locale: Locale = "vi"
+    ref: str | None = Field(default=None, max_length=16)
+
+
+class LoginCodeIn(BaseModel):
+    email: EmailStr
+    code: str = Field(pattern=r"^\d{6}$")
 
 
 class LoginIn(BaseModel):
@@ -94,6 +106,7 @@ class GlossaryTerm(BaseModel):
 
 class JobIn(BaseModel):
     title: str = Field(default="", max_length=200)
+    series_id: uuid.UUID | None = None
     upload_ids: list[uuid.UUID] = Field(min_length=1, max_length=500)
     source_lang: str
     target_lang: str
@@ -125,6 +138,7 @@ def error_out(code: str | None) -> ErrorOut | None:
 
 class JobOut(BaseModel):
     id: uuid.UUID
+    series_id: uuid.UUID | None
     title: str
     status: str
     source_lang: str
@@ -148,7 +162,8 @@ class AdminJobOut(JobOut):
 
 def job_out(job: m.Job, counts: dict[str, int], user_email: str | None = None) -> JobOut:
     data = dict(
-        id=job.id, title=job.title, status=job.status, source_lang=job.source_lang, target_lang=job.target_lang,
+        id=job.id, series_id=job.series_id, title=job.title, status=job.status, source_lang=job.source_lang,
+        target_lang=job.target_lang,
         mode=job.mode, page_count=job.page_count, pages_done=counts.get("ready", 0),
         pages_failed=counts.get("failed", 0), pages_review=counts.get("review", 0),
         credits_reserved=job.credits_reserved, credits_charged=job.credits_charged, error=error_out(job.error_code),
@@ -233,6 +248,7 @@ class ProductOut(BaseModel):
     code: str
     name: str
     credits: int
+    bonus_credits: int
     price_amount: int
     currency: str
 
@@ -299,6 +315,7 @@ class ProductIn(BaseModel):
     code: str = Field(pattern=r"^[a-z0-9_-]{2,64}$")
     name: str = Field(min_length=1, max_length=120)
     credits: int = Field(gt=0)
+    bonus_credits: int = Field(default=0, ge=0)
     price_amount: int = Field(gt=0)
     currency: Literal["VND", "USD"] = "VND"
     active: bool = True
@@ -308,6 +325,41 @@ class ProductIn(BaseModel):
 class ProductPatch(BaseModel):
     name: str | None = Field(default=None, min_length=1, max_length=120)
     credits: int | None = Field(default=None, gt=0)
+    bonus_credits: int | None = Field(default=None, ge=0)
     price_amount: int | None = Field(default=None, gt=0)
     active: bool | None = None
     sort_order: int | None = None
+
+
+# --- series / sharing / notifications ---------------------------------------------
+
+class Term(BaseModel):
+    source: str = Field(min_length=1, max_length=100)
+    target: str = Field(min_length=1, max_length=100)
+    auto: bool = False  # learned by the translator; user-edited terms are auto=false and always win
+
+
+class SeriesIn(BaseModel):
+    title: str = Field(min_length=1, max_length=200)
+    source_lang: str
+    target_lang: str
+
+
+class SeriesPatch(BaseModel):
+    title: str | None = Field(default=None, min_length=1, max_length=200)
+    glossary: list[Term] | None = Field(default=None, max_length=1000)
+
+
+class SeriesOut(BaseModel):
+    id: uuid.UUID
+    title: str
+    source_lang: str
+    target_lang: str
+    chapters: int
+    terms: int
+    created_at: datetime
+    updated_at: datetime
+
+
+class ShareIn(BaseModel):
+    days: int = Field(default=7, ge=1, le=30)

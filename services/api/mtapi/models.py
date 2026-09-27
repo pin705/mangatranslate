@@ -32,7 +32,7 @@ JOB_STATUSES = (
 PAGE_STATUSES = ("pending", "processing", "ready", "failed")
 PAGE_STAGES = ("none", "prepared", "translated", "rendered")
 TASK_STATUSES = ("queued", "running", "done", "failed", "cancelled")
-CREDIT_KINDS = ("signup_bonus", "purchase", "reserve", "release", "refund", "admin_grant", "admin_revoke")
+CREDIT_KINDS = ("signup_bonus", "purchase", "reserve", "release", "refund", "admin_grant", "admin_revoke", "referral")
 PAYMENT_STATUSES = ("pending", "paid", "cancelled", "failed", "refunded")
 
 
@@ -59,6 +59,8 @@ class User(Base):
     role: Mapped[str] = mapped_column(String(16), default="USER")
     status: Mapped[str] = mapped_column(String(16), default="active")
     locale: Mapped[str] = mapped_column(String(8), default="vi")
+    referral_code: Mapped[str | None] = mapped_column(String(16), unique=True)
+    referred_by: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"))
     created_at: Mapped[datetime] = _created()
     deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
@@ -77,7 +79,7 @@ class Session(Base):
 
 class EmailToken(Base):
     __tablename__ = "email_tokens"
-    __table_args__ = (CheckConstraint(_in("purpose", ("verify", "reset"))),)
+    __table_args__ = (CheckConstraint(_in("purpose", ("verify", "reset", "login"))),)
 
     id: Mapped[str] = mapped_column(String(64), primary_key=True)  # sha256(token)
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
@@ -129,6 +131,7 @@ class Product(Base):
     code: Mapped[str] = mapped_column(String(64), unique=True)
     name: Mapped[str] = mapped_column(String(120))
     credits: Mapped[int] = mapped_column(Integer)
+    bonus_credits: Mapped[int] = mapped_column(Integer, default=0)  # promotional extra, granted with the pack
     price_amount: Mapped[int] = mapped_column(BigInteger)  # smallest currency unit (VND has no minor unit)
     currency: Mapped[str] = mapped_column(String(3), default="VND")
     active: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -172,6 +175,56 @@ class PaymentEvent(Base):
     received_at: Mapped[datetime] = _created()
 
 
+class Series(Base):
+    """A manga/manhwa/manhua series. Its glossary keeps names and terms consistent across chapters; terms the
+    translator discovers are added with auto=true and can be edited by the user."""
+
+    __tablename__ = "series"
+    __table_args__ = (Index("ix_series_user", "user_id", "updated_at"),)
+
+    id: Mapped[uuid.UUID] = _uuid()
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    title: Mapped[str] = mapped_column(String(200))
+    source_lang: Mapped[str] = mapped_column(String(32))
+    target_lang: Mapped[str] = mapped_column(String(32))
+    glossary: Mapped[list] = mapped_column(JSONB, default=list)  # [{source, target, auto}]
+    created_at: Mapped[datetime] = _created()
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    deleted_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+
+class ShareLink(Base):
+    """Unlisted, expiring, revocable read-only link to a finished chapter. Only sha256(token) is stored."""
+
+    __tablename__ = "share_links"
+
+    id: Mapped[str] = mapped_column(String(64), primary_key=True)
+    job_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("jobs.id", ondelete="CASCADE"), index=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    token_hint: Mapped[str] = mapped_column(String(8))  # first characters, to show which link is active
+    folder: Mapped[str] = mapped_column(String(32))  # shares/{folder}/: snapshot copies, so public URLs reveal no IDs
+    created_at: Mapped[datetime] = _created()
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    revoked_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    views: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class Notification(Base):
+    """In-app notification. `kind` + `data` are rendered (and localized) by the web app."""
+
+    __tablename__ = "notifications"
+    __table_args__ = (Index("ix_notifications_user", "user_id", "created_at"),)
+
+    id: Mapped[int] = mapped_column(BigInteger, primary_key=True, autoincrement=True)
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    # job_completed | job_failed | payment_succeeded | payment_failed | credits_low | referral_reward
+    kind: Mapped[str] = mapped_column(String(32))
+    data: Mapped[dict] = mapped_column(JSONB, default=dict)
+    dedupe_key: Mapped[str | None] = mapped_column(String(200), unique=True)
+    read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    created_at: Mapped[datetime] = _created()
+
+
 class Upload(Base):
     __tablename__ = "uploads"
 
@@ -196,6 +249,7 @@ class Job(Base):
 
     id: Mapped[uuid.UUID] = _uuid()
     user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id"))
+    series_id: Mapped[uuid.UUID | None] = mapped_column(ForeignKey("series.id", ondelete="SET NULL"), index=True)
     title: Mapped[str] = mapped_column(String(200), default="")
     status: Mapped[str] = mapped_column(String(16), default="PENDING", index=True)
     source_lang: Mapped[str] = mapped_column(String(32))
@@ -239,6 +293,7 @@ class Page(Base):
     height: Mapped[int] = mapped_column(Integer, default=0)
     # Detected regions with OCR text, translation and style — the editor's document (see docs/API.md "Region")
     regions: Mapped[list] = mapped_column(JSONB, default=list)
+    credits: Mapped[int] = mapped_column(Integer, default=0)  # price of this page, from its pixel area (set at ingest)
     billed: Mapped[bool] = mapped_column(Boolean, default=False)  # charged once, at the first successful render
     needs_review: Mapped[bool] = mapped_column(Boolean, default=False)
     review_reasons: Mapped[list] = mapped_column(JSONB, default=list)

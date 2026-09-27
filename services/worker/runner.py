@@ -22,17 +22,16 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 sys.path.insert(0, os.environ.get("API_PATH", str(Path(__file__).resolve().parents[1] / "api")))
 
-from sqlalchemy import text  # noqa: E402
-from sqlalchemy.dialects.postgresql import insert  # noqa: E402
-
 from mtapi import models as m  # noqa: E402
 from mtapi import queue  # noqa: E402
 from mtapi.config import get_settings  # noqa: E402
 from mtapi.db import SessionLocal, session_scope  # noqa: E402
 from mtapi.logs import setup_logging  # noqa: E402
+from sqlalchemy import text  # noqa: E402
+from sqlalchemy.dialects.postgresql import insert  # noqa: E402
 
 log = logging.getLogger("worker")
-ALIVE = Path(os.environ.get("WORKER_ALIVE_FILE", "/tmp/worker-alive"))  # container healthcheck reads its mtime
+ALIVE = Path(os.environ.get("WORKER_ALIVE_FILE", "/tmp/worker-alive"))  # noqa: S108 — healthcheck reads its mtime
 STOP = threading.Event()
 
 

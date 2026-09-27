@@ -36,6 +36,8 @@ def pricing(db: DB = Depends(get_db)):
         "limits": {"max_pages_per_job": s["max_pages_per_job"], "max_upload_mb": get_settings().max_upload_mb,
                    "max_concurrent_jobs": s["max_concurrent_jobs"]},
         "retention_days": s["retention_days"],
+        "credit_megapixels": s["credit_megapixels"],
+        "referral_bonus": s["referral_bonus"],
     }
 
 

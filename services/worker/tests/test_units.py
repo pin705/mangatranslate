@@ -65,3 +65,15 @@ def test_pixel_and_page_caps():
         ingest.check_image("big.png", _png((5000, 5000)), 10**7)
     with pytest.raises(ingest.InvalidUpload):
         ingest.pages_from_upload("c.zip", _zip({f"{i}.png": _png() for i in range(5)}), 10**7, 3)
+
+
+def test_learned_terms_are_grounded_and_new():
+    from ai import new_terms
+
+    lines = {"a": "师姐，快走！", "b": "青云宗的弟子"}
+    reply = {"terms": [{"source": "师姐", "target": "sư tỷ"}, {"source": "青云宗", "target": "Thanh Vân Tông"},
+                       {"source": "天帝", "target": "Thiên Đế"},          # not in the chapter: hallucinated
+                       {"source": "弟子", "target": "弟子"},              # left untranslated
+                       "junk"]}
+    got = new_terms(reply, lines, [{"source": "师姐", "target": "sư tỷ"}], "Vietnamese")
+    assert got == [{"source": "青云宗", "target": "Thanh Vân Tông", "auto": True}]

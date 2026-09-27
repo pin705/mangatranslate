@@ -7,16 +7,18 @@ import logging
 import zipfile
 from datetime import timedelta
 
+from mtapi import app_settings, emails, jobs, ledger, queue, storage
+from mtapi import models as m
+from mtapi.config import get_settings
+from mtapi.db import session_scope
+from mtapi.notify import credits_low as notify_credits_low
+from mtapi.notify import notify
+from mtapi.security import now
 from sqlalchemy import delete, func, select, text, update
 
 import ai
 import ingest
 import pipeline
-from mtapi import app_settings, emails, jobs, ledger, queue, storage
-from mtapi import models as m
-from mtapi.config import get_settings
-from mtapi.db import session_scope
-from mtapi.security import now
 
 log = logging.getLogger("worker.tasks")
 
@@ -75,8 +77,9 @@ def job_ingest(task) -> None:
         if job.status != "INGESTING":
             return
         job.page_count = len(images)
+        costs = [app_settings.page_cost(settings, job.credits_per_page, i.width, i.height) for i in images]
         try:
-            ledger.reserve_for_job(db, job, len(images) * job.credits_per_page)
+            ledger.reserve_for_job(db, job, sum(costs))
         except ledger.InsufficientCredits:
             job.page_count = 0
             job.error_code = "INSUFFICIENT_CREDITS"
@@ -95,7 +98,7 @@ def job_ingest(task) -> None:
             return
         db.execute(delete(m.Page).where(m.Page.job_id == job.id))
         for i, (img, key) in enumerate(zip(images, keys, strict=True)):
-            db.add(m.Page(job_id=job.id, index=i, source_key=key, width=img.width, height=img.height))
+            db.add(m.Page(job_id=job.id, index=i, source_key=key, width=img.width, height=img.height, credits=costs[i]))
         jobs.transition(job, "PROCESSING")
         db.flush()
         jobs.advance(db, job)
@@ -138,8 +141,11 @@ def job_translate(task) -> None:
                            ).scalars().all()
         snapshot = [(p.id, p.index, p.regions) for p in pages]
     lines = {f"{idx}:{r['id']}": r["text"] for _, idx, regions in snapshot for r in regions if r.get("text")}
-    done, flagged = ai.translate(lines, job.source_lang, job.target_lang, job.glossary or [], _ctx(None, job)) \
-        if lines else ({}, set())
+    glossary, previous = _series_context(job)
+    done, flagged, learned = ai.translate(lines, job.source_lang, job.target_lang, glossary, _ctx(None, job),
+                                          previous=previous) if lines else ({}, set(), [])
+    if learned and job.series_id:
+        _learn_terms(job.series_id, learned)
     with session_scope() as db:
         for pid, idx, regions in snapshot:
             p = db.execute(select(m.Page).where(m.Page.id == pid).with_for_update()).scalar_one()
@@ -153,6 +159,41 @@ def job_translate(task) -> None:
                 p.review_reasons = sorted(set(p.review_reasons or []) | {"TRANSLATION_UNCERTAIN"})
             p.stage = "translated"
     _advance(job.id)
+
+
+def _series_context(job: m.Job) -> tuple[list[dict], list[dict]]:
+    """Glossary precedence: this chapter's terms > the user's series terms > learned (auto) series terms.
+    Also returns the last translated lines of the previous chapter so dialogue carries over."""
+    glossary = [{"source": g["source"], "target": g["target"]} for g in job.glossary or []]
+    if not job.series_id:
+        return glossary, []
+    with session_scope() as db:
+        series = db.get(m.Series, job.series_id)
+        terms = sorted(series.glossary or [], key=lambda g: bool(g.get("auto"))) if series else []
+        prev = db.execute(select(m.Job).where(m.Job.series_id == job.series_id, m.Job.id != job.id,
+                                              m.Job.status.in_(("COMPLETED", "PARTIAL")),
+                                              m.Job.created_at < job.created_at)
+                          .order_by(m.Job.created_at.desc()).limit(1)).scalar_one_or_none()
+        last = []
+        if prev:
+            pages = db.execute(select(m.Page.regions).where(m.Page.job_id == prev.id).order_by(m.Page.index.desc())
+                               .limit(3)).scalars().all()
+            for regions in reversed(pages):
+                last += [{"source": r["text"], "translation": r["translation"]} for r in regions or []
+                         if r.get("text") and r.get("translation")]
+    have = {g["source"] for g in glossary}
+    glossary += [{"source": g["source"], "target": g["target"]} for g in terms if g["source"] not in have]
+    return glossary, last[-15:]
+
+
+def _learn_terms(series_id, learned: list[dict]) -> None:
+    with session_scope() as db:
+        series = db.execute(select(m.Series).where(m.Series.id == series_id).with_for_update()).scalar_one_or_none()
+        if not series:
+            return
+        known = {g["source"] for g in series.glossary or []}
+        add = [t for t in learned if t["source"] not in known]
+        series.glossary = (list(series.glossary or []) + add)[:1000]
 
 
 def _render_page(page: m.Page, job: m.Job) -> tuple[str, list[str]]:
@@ -203,7 +244,8 @@ def _regen_done(task, job: m.Job) -> None:
 def page_retranslate(task) -> None:
     page, job = _load(task)
     lines = {r["id"]: r["text"] for r in page.regions or [] if r.get("text")}
-    done, flagged = ai.translate(lines, job.source_lang, job.target_lang, job.glossary or [], _ctx(page, job))
+    glossary, _ = _series_context(job)
+    done, flagged, _ = ai.translate(lines, job.source_lang, job.target_lang, glossary, _ctx(page, job))
     with session_scope() as db:
         p = db.execute(select(m.Page).where(m.Page.id == page.id).with_for_update()).scalar_one()
         p.regions = [{**r, "translation": done.get(r["id"], r.get("translation", ""))} for r in p.regions or []]
@@ -236,6 +278,9 @@ def job_finalize(task) -> None:
         counts = dict(db.execute(text("SELECT status, count(*) FROM pages WHERE job_id = :j GROUP BY status"),
                                  {"j": job.id}).all())
         template = "job_failed" if status == "FAILED" else "job_completed"
+        notify(db, user.id, template, dedupe_key=f"{template}:{job.id}:{job.generation}", job_id=str(job.id),
+               title=job.title, done=counts.get("ready", 0), total=job.page_count, status=status)
+        notify_credits_low(db, user.id)
         queue.enqueue(db, "email.send", user_id=user.id, payload={
             "to": user.email, "template": template, "locale": user.locale,
             "ctx": {"title": job.title, "done": counts.get("ready", 0), "total": job.page_count,
@@ -262,9 +307,17 @@ def job_archive(task) -> None:
         j.archive_key, j.archive_built_at = key, started
 
 
+def _purge_shares(db, where) -> None:
+    for link in db.execute(select(m.ShareLink).where(*where)).scalars().all():
+        storage.delete_prefix(f"shares/{link.folder}/")
+        link.revoked_at = link.revoked_at or now()
+
+
 def job_purge(task) -> None:
     _, job = _load(task)
     storage.delete_prefix(storage.job_prefix(job.user_id, job.id))
+    with session_scope() as db:
+        _purge_shares(db, [m.ShareLink.job_id == job.id])
     with session_scope() as db:
         db.execute(update(m.Page).where(m.Page.job_id == job.id).values(
             output_key=None, clean_key=None, regions=[]))
@@ -278,6 +331,8 @@ def user_purge(task) -> None:
             jobs.cancel(db, job)
     storage.delete_prefix(f"users/{task.user_id}/")
     storage.delete_prefix(f"uploads/{task.user_id}/")
+    with session_scope() as db:
+        _purge_shares(db, [m.ShareLink.user_id == task.user_id])
     with session_scope() as db:
         db.execute(delete(m.Upload).where(m.Upload.user_id == task.user_id))
         db.execute(delete(m.Session).where(m.Session.user_id == task.user_id))
@@ -294,6 +349,7 @@ def system_cleanup(task) -> None:
         for job in expired:
             jobs.transition(job, "EXPIRED")
             queue.enqueue(db, "job.purge", job_id=job.id, dedupe_key=f"purge:{job.id}")
+        _purge_shares(db, [m.ShareLink.expires_at < text("now()"), m.ShareLink.revoked_at.is_(None)])
         db.execute(text("DELETE FROM rate_limits WHERE window_start < now() - interval '1 day'"))
         db.execute(text("DELETE FROM sessions WHERE expires_at < now()"))
         db.execute(text("DELETE FROM email_tokens WHERE expires_at < now() - interval '7 days'"))
@@ -301,6 +357,12 @@ def system_cleanup(task) -> None:
         db.execute(text("UPDATE payments SET status = 'cancelled' WHERE status = 'pending' "
                         "AND created_at < now() - interval '1 day'"))
         db.execute(text("DELETE FROM worker_heartbeats WHERE last_seen_at < now() - interval '1 day'"))
+        # Login-code sign-ups that never confirmed the code and never did anything
+        db.execute(text("""DELETE FROM users u WHERE u.email_verified_at IS NULL AND u.password_hash IS NULL
+            AND u.created_at < now() - interval '7 days'
+            AND NOT EXISTS (SELECT 1 FROM jobs j WHERE j.user_id = u.id)
+            AND NOT EXISTS (SELECT 1 FROM payments p WHERE p.user_id = u.id)
+            AND NOT EXISTS (SELECT 1 FROM credit_transactions t WHERE t.user_id = u.id)"""))
         # Jobs that never finished ingesting because their uploads vanished are failed, releasing nothing (none held)
         db.execute(update(m.Job).where(m.Job.status == "PENDING", m.Job.created_at < now() - timedelta(days=2))
                    .values(status="FAILED", error_code="UPLOAD_INVALID", finished_at=now()))

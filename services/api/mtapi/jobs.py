@@ -86,7 +86,7 @@ def bill_ready_pages(db: DB, job: m.Job) -> int:
     """Charge every rendered, not-yet-billed page and release the rest of the open reservation."""
     pages = db.execute(select(m.Page).where(m.Page.job_id == job.id, m.Page.status == "ready", ~m.Page.billed)
                        .with_for_update()).scalars().all()
-    used = min(len(pages) * job.credits_per_page, job.credits_reserved)
+    used = min(sum(p.credits or job.credits_per_page for p in pages), job.credits_reserved)
     for p in pages:
         p.billed = True
     ledger.settle_job(db, job, used)
@@ -111,13 +111,18 @@ def finalize(db: DB, job: m.Job) -> str:
 # --- user actions -------------------------------------------------------------
 
 def create(db: DB, user: m.User, *, title: str, upload_ids: list, source_lang: str, target_lang: str, mode: str,
-           glossary: list[dict], idempotency_key: str | None) -> tuple[m.Job, bool]:
+           glossary: list[dict], idempotency_key: str | None, series_id=None) -> tuple[m.Job, bool]:
     """Returns (job, created). Credits are reserved later, by the worker, once the page count is known."""
     if idempotency_key:
         existing = db.execute(select(m.Job).where(m.Job.user_id == user.id, m.Job.idempotency_key == idempotency_key)
                               ).scalar_one_or_none()
         if existing:
             return existing, False
+    if series_id:
+        series = db.get(m.Series, series_id)
+        if not series or series.user_id != user.id or series.deleted_at:
+            raise AppError(404, "NOT_FOUND", "Series not found.")
+        source_lang, target_lang = series.source_lang, series.target_lang  # a series has one language pair
     if source_lang not in app_settings.SOURCE_LANGS or target_lang not in app_settings.TARGET_LANGS:
         raise AppError(400, "VALIDATION_ERROR", "This language pair is not supported.")
     settings = app_settings.get_all(db)
@@ -137,7 +142,7 @@ def create(db: DB, user: m.User, *, title: str, upload_ids: list, source_lang: s
         if not head or head["ContentLength"] != u.size:
             raise AppError(400, "UPLOAD_MISSING", f"“{u.filename}” did not finish uploading. Please try again.")
 
-    job = m.Job(user_id=user.id, title=title or uploads[0].filename.rsplit(".", 1)[0][:200],
+    job = m.Job(user_id=user.id, series_id=series_id, title=title or uploads[0].filename.rsplit(".", 1)[0][:200],
                 source_lang=source_lang, target_lang=target_lang, mode=mode, glossary=glossary,
                 credits_per_page=app_settings.credits_per_page(db, mode), idempotency_key=idempotency_key)
     db.add(job)
@@ -174,7 +179,7 @@ def retry(db: DB, job: m.Job) -> None:
                         .with_for_update()).scalars().all()
     if not failed:
         raise AppError(409, "CONFLICT", "There are no failed pages to retry.")
-    ledger.reserve_for_job(db, job, len(failed) * job.credits_per_page)
+    ledger.reserve_for_job(db, job, sum(p.credits or job.credits_per_page for p in failed))
     for p in failed:
         p.status, p.error_code, p.error_message = "pending", None, None
     transition(job, "PROCESSING")

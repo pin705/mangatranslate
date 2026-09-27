@@ -7,6 +7,7 @@ Key layout. Lifecycle rules can only match prefixes, so each retention class has
   users/{user_id}/jobs/{job_id}/intermediate/{i}.png  cleaned pages          (retention_days, editor needs them)
   users/{user_id}/jobs/{job_id}/output/{i}.jpg        translated pages       (retention_days)
   users/{user_id}/jobs/{job_id}/archive/{name}.zip    download archive       (retention_days)
+  shares/{random}/{i}.jpg                             public share snapshot  (link lifetime; bucket rule 31 days)
 Job data is deleted by the app when a job expires (system.cleanup); a bucket rule on users/ at 2x the longest
 retention is the backstop. See docs/OPERATIONS.md.
 """
@@ -94,7 +95,7 @@ def put_bytes(key: str, data: bytes, content_type: str) -> None:
 
 
 def delete_prefix(prefix: str) -> int:
-    assert prefix.startswith(("users/", "uploads/")) and prefix.endswith("/") and prefix.count("/") >= 2, \
+    assert prefix.startswith(("users/", "uploads/", "shares/")) and prefix.endswith("/") and prefix.count("/") >= 2, \
         "refusing to delete outside a user prefix"
     deleted = 0
     for page in client().get_paginator("list_objects_v2").paginate(Bucket=bucket(), Prefix=prefix):
@@ -103,6 +104,10 @@ def delete_prefix(prefix: str) -> int:
             client().delete_objects(Bucket=bucket(), Delete={"Objects": keys, "Quiet": True})
             deleted += len(keys)
     return deleted
+
+
+def copy(src: str, dst: str) -> None:
+    client().copy_object(Bucket=bucket(), Key=dst, CopySource={"Bucket": bucket(), "Key": src})
 
 
 def ping() -> None:

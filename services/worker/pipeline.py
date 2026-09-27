@@ -29,8 +29,9 @@ def init() -> None:
         return
     argv, sys.argv = sys.argv, [sys.argv[0]]
     try:
-        import scripts.local_batch as lb
         from PySide6 import QtWidgets
+
+        import scripts.local_batch as lb
 
         args = lb.parse_args()
     finally:
@@ -164,6 +165,9 @@ def render(original: np.ndarray, cleaned: np.ndarray, regions: list[dict], sourc
     """Typeset translations onto the cleaned page. Returns (image, ids of regions whose text overflowed)."""
     init()
     lb, args = _state["lb"], _args(source_lang, target_lang)
+    from PySide6 import QtCore
+    from PySide6.QtGui import QColor
+
     from app.ui.canvas.save_renderer import ImageSaveRenderer
     from app.ui.canvas.text.text_item_properties import TextItemProperties
     from app.ui.canvas.text_item import OutlineInfo, OutlineType
@@ -171,8 +175,6 @@ def render(original: np.ndarray, cleaned: np.ndarray, regions: list[dict], sourc
     from modules.utils.image_utils import get_smart_text_color
     from modules.utils.language_utils import get_language_code, get_layout_direction, is_no_space_lang
     from modules.utils.translator_utils import format_translations
-    from PySide6 import QtCore
-    from PySide6.QtGui import QColor
 
     target_code = get_language_code(target_lang)
     # Untranslated source regions (SFX, noise) get their original pixels back instead of a blank patch.

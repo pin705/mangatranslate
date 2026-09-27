@@ -275,7 +275,8 @@ def patch_settings(body: dict, request: Request, admin: m.User = Depends(admin_u
 
 
 def _product_out(p: m.Product) -> dict:
-    return {"id": p.id, "code": p.code, "name": p.name, "credits": p.credits, "price_amount": p.price_amount,
+    return {"id": p.id, "code": p.code, "name": p.name, "credits": p.credits, "bonus_credits": p.bonus_credits,
+            "price_amount": p.price_amount,
             "currency": p.currency, "active": p.active, "sort_order": p.sort_order}
 
 
