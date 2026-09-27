@@ -26,7 +26,7 @@ Never reuse production credentials in local or staging.
 2. **Postgres**: create a managed instance with automated backups + point-in-time recovery (see
    DISASTER_RECOVERY.md). Put its URL in `DATABASE_URL` with `sslmode=require`.
 3. **R2**: create a bucket per environment and an API token scoped to that bucket. Add lifecycle rules:
-   `uploads/` expire after 1 day, `users/` expire after 60 days (backstop). Add a CORS rule allowing `PUT, GET`
+   `uploads/` expire after 1 day, `shares/` after 31 days, `users/` after 60 days (backstop). Add a CORS rule allowing `PUT, GET`
    from `https://DOMAIN` (browsers upload directly).
 4. **Segmenter model**: run `services/worker/scripts/export_segmenter.py` once, upload the ONNX file to a private
    bucket URL, and set the repository secret `SEGMENTER_ONNX_URL` (or build with `SEGMENTER=none`).

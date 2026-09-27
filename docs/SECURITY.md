@@ -14,6 +14,12 @@ What is implemented, where, and what is still open. Report vulnerabilities to th
 - No tokens in `localStorage`: the web app calls the API same-origin through its proxy.
 - Brute force: per-IP and per-e-mail fixed-window limits on login (20/15 min per IP, 10/15 min per account),
   register, forgot/reset password, verification, uploads, job creation, editor saves, checkout.
+- Passwordless login: 6-digit code, valid 10 minutes, single-use, stored hashed, and replaced by any newer code.
+  8 guesses per e-mail per 15 minutes (and 30 per IP). Accounts created by an unconfirmed code with no activity are
+  deleted after 7 days.
+- Share links: 18-byte random token (only its hash is stored), expiry of 1–30 days capped at the job's retention,
+  revocable. They serve a snapshot copied under `shares/{random}/`, so public URLs contain no user or job IDs. The
+  public reader is `noindex` and rate limited.
 - Account deletion: password confirmation, immediate anonymisation (e-mail replaced, password removed, sessions
   revoked), then asynchronous deletion of all stored files. Payment and ledger rows stay (accounting), linked to
   the anonymised user.

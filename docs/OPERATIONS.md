@@ -45,6 +45,7 @@
 | Raw uploads (`uploads/`) | worker after ingest; bucket rule (1 day) | right after ingest, at most 1 day |
 | Sources, cleaned pages, outputs, archive | `system.cleanup` → `job.purge` | `retention_days` (default 14) after the job finishes |
 | Everything under `users/` | bucket rule | 60 days (backstop) |
+| Share snapshots (`shares/`) | revoke / `system.cleanup` on expiry / job or account purge | link lifetime (≤ 30 days); bucket rule 31 days |
 | User-deleted job | `job.purge` | immediately |
 | Deleted account | `user.purge` | immediately after the request |
 | Sessions, e-mail tokens, rate-limit rows, done tasks | `system.cleanup` | expiry / 1 day / 7 days |

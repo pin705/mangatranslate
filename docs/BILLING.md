@@ -2,12 +2,19 @@
 
 ## Model
 
-- **1 page = `credits_per_page_{clean|overlay}` credits** (admin setting, default 1). The rate is snapshotted on
-  the job when it is created.
+- **Price per page = rate × blocks.** `rate` = `credits_per_page_{clean|overlay}` (default 1, snapshotted on the
+  job at creation). `blocks` = max(1, ceil(width × height / (`credit_megapixels` × 10⁶))), default 2 MP per block.
+  A normal 1200×1660 page is 1 block. An 800×12000 webtoon strip is 5 blocks, so long strips pay for the compute
+  they use. The price is stored per page (`pages.credits`) at ingest.
 - **Credit packs** (`products` table: code, name, credits, price in VND) are managed in `/admin/system`. The
   seeded prices (Starter 100 = 49,000 VND, Pro 500 = 199,000 VND, Power 2000 = 699,000 VND) are placeholders.
-- **Signup bonus** (`signup_bonus`, default 20) is granted when the e-mail is **verified**, not at registration,
-  which makes account farming harder.
+- **Signup bonus** (`signup_bonus`, default 20) is granted when the e-mail is **verified** (link or login code), not
+  at registration, which makes account farming harder.
+- **Pack bonus** (`products.bonus_credits`): promotional extra credits granted with the pack and snapshotted on the
+  payment.
+- **Referrals**: `referral_bonus` (default 50) for both users, granted once, when the invited user's **first
+  payment** succeeds (ledger kind `referral`, keys `referral:referrer:{invitee}` and `referral:referee:{invitee}`).
+  Sign-ups alone earn nothing, so farming accounts is pointless.
 - Subscriptions are not offered yet (VietQR has no recurring charge). See ARCHITECTURE.md → limits.
 - Credits do not expire. Adding expiry would mean a scheduled `expire` transaction kind.
 
@@ -31,10 +38,10 @@ GROUP BY w.user_id, w.balance HAVING w.balance <> coalesce(sum(t.amount), 0);
 ## Job lifecycle
 
 ```
-ingest: page count known ─► reserve pages × rate      (reserve:{job}:{generation})
+ingest: page sizes known ─► reserve Σ page prices     (reserve:{job}:{generation})
 finalize / cancel         ─► charge rendered, unbilled pages; release the rest   (release:{job}:{generation})
-retry failed pages        ─► generation + 1, reserve failed pages × rate, same settlement
-regenerate one page       ─► reserve 1 page (regen:{page}:{version}); kept on success, released on final failure
+retry failed pages        ─► generation + 1, reserve Σ failed page prices, same settlement
+regenerate one page       ─► reserve that page's price (regen:{page}:{version}); kept on success, released on final failure
 typeset-only edits        ─► free
 ```
 
