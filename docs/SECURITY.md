@@ -33,7 +33,10 @@ What is implemented, where, and what is still open. Report vulnerabilities to th
   `SameSite=Lax`. Payment webhooks are exempt and authenticated by signature instead.
 - CORS allowlist from `CORS_ORIGINS`.
 - Headers: `X-Content-Type-Options`, `X-Frame-Options: DENY`, `Referrer-Policy`, HSTS (production),
-  `Cache-Control: no-store` on API responses. CSP is set by the web app (see `apps/web`).
+  `Cache-Control: no-store` on API responses. The web app (`apps/web/src/proxy.ts`) sends a per-request nonce CSP:
+  `script-src 'nonce-…' 'strict-dynamic'`, no inline scripts, `frame-ancestors 'none'`, `form-action 'self'`, and
+  images/uploads limited to the storage origin (`CSP_STORAGE_ORIGIN`). `style-src` allows inline styles, which UI
+  positioning needs; styles cannot execute code. Verified in headless Chrome: no violations across the app.
 - Errors: a consistent JSON shape. Unhandled exceptions return a generic message; stack traces are only logged.
 - OpenAPI docs are disabled in production.
 - SQL: SQLAlchemy only (parameterised), with a handful of static `text()` queries and bound parameters.
