@@ -3,7 +3,7 @@ import json
 from conftest import make_admin, new_client, signup
 from sqlalchemy import text
 
-from app.payments import dev, payos
+from mtapi.payments import dev, payos
 
 
 def _checkout(client):

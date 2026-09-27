@@ -38,8 +38,8 @@ command.upgrade(_cfg, "head")
 from fastapi.testclient import TestClient  # noqa: E402
 from sqlalchemy import select, text  # noqa: E402
 
-from app import models as m  # noqa: E402
-from app.db import SessionLocal, engine  # noqa: E402
+from mtapi import models as m  # noqa: E402
+from mtapi.db import SessionLocal, engine  # noqa: E402
 
 _KEEP = {"alembic_version", "products"}
 
@@ -58,7 +58,7 @@ def s3():
     with mock_aws():
         import boto3
 
-        from app import storage
+        from mtapi import storage
         storage.client.cache_clear()
         storage.signing_client.cache_clear()
         boto3.client("s3", region_name="us-east-1", endpoint_url="https://s3.us-east-1.amazonaws.com").create_bucket(
@@ -74,13 +74,13 @@ def db():
 
 @pytest.fixture
 def client():
-    from app.main import app
+    from mtapi.main import app
     with TestClient(app) as c:
         yield c
 
 
 def new_client():
-    from app.main import app
+    from mtapi.main import app
     return TestClient(app)
 
 

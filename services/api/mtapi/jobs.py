@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session as DB
 
 from . import app_settings, ledger, queue, storage
 from . import models as m
+from .config import get_settings
 from .errors import AppError
 from .security import now
 
@@ -40,11 +41,14 @@ def transition(job: m.Job, to: str) -> None:
         return
     if to not in TRANSITIONS[job.status]:
         raise InvalidTransition(f"{job.status} -> {to}")
-    job.status = to
+    previous, job.status = job.status, to
     if to in ("PROCESSING", "INGESTING") and not job.started_at:
         job.started_at = now()
     if to in TERMINAL:
-        job.finished_at = now()
+        if to != "EXPIRED" or not job.finished_at:
+            job.finished_at = now()
+    elif previous in TERMINAL:  # retry reopens the job
+        job.finished_at = None
 
 
 def lock(db: DB, job_id) -> m.Job:
@@ -64,7 +68,7 @@ def advance(db: DB, job: m.Job) -> None:
         transition(job, "PROCESSING")
         for p in by_stage["none"]:
             queue.enqueue(db, "page.prepare", job_id=job.id, page_id=p.id, dedupe_key=f"prepare:{p.id}:{gen}",
-                          priority=100)
+                          priority=100, queue=get_settings().model_queue)
     elif by_stage["prepared"]:
         transition(job, "TRANSLATING")
         queue.enqueue(db, "job.translate", job_id=job.id, dedupe_key=f"translate:{job.id}:{gen}", priority=90)

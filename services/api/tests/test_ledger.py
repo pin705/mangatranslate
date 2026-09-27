@@ -3,9 +3,9 @@ import uuid
 
 import pytest
 
-from app import ledger
-from app import models as m
-from app.db import SessionLocal
+from mtapi import ledger
+from mtapi import models as m
+from mtapi.db import SessionLocal
 
 
 def _user(db) -> uuid.UUID:

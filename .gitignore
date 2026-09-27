@@ -36,3 +36,8 @@ Thumbs.db
 # Local test data
 samples/
 .venv/
+node_modules/
+.next/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/

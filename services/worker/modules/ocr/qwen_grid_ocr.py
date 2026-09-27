@@ -93,8 +93,7 @@ class QwenGridOCR(OCREngine):
             )
             seconds = time.time() - started
             if response.status_code != 200:
-                print(f"Qwen grid OCR API error: {response.status_code} {response.text}", flush=True)
-                return blk_list
+                raise RuntimeError(f"grid OCR API error: HTTP {response.status_code}")
 
             data = response.json()
             content = ((data.get("choices") or [{}])[0].get("message") or {}).get("content") or ""

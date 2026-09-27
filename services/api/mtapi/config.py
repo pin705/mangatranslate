@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     s3_bucket: str = "mangatranslate"
     s3_region: str = "auto"
 
+    # Queue for model-heavy page tasks. Set to "gpu" and run GPU workers with WORKER_QUEUES=gpu to split them out.
+    model_queue: str = "default"
+
     max_upload_mb: int = 200
     max_image_pixels: int = 40_000_000
 

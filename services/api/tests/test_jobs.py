@@ -4,9 +4,9 @@ import pytest
 from conftest import make_admin, new_client, signup
 from sqlalchemy import select, text
 
-from app import jobs, ledger
-from app import models as m
-from app.storage import bucket
+from mtapi import jobs, ledger
+from mtapi import models as m
+from mtapi.storage import bucket
 
 
 def _upload(client, s3, name="p1.png", size=10):

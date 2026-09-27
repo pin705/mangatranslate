@@ -164,7 +164,7 @@ def get_best_render_area(blk_list: List[TextBlock], img, inpainted_img=None):
     for blk in blk_list:
         if blk.text_class == 'text_bubble' and blk.bubble_xyxy is not None:
             use_bubble_bounds = os.environ.get("BUBBLE_RENDER_USE_BUBBLE", "false").lower() == "true"
-            if use_bubble_bounds or blk.source_lang_direction == 'vertical':
+            if use_bubble_bounds or blk.direction == 'vertical' or blk.source_lang in ('ja', 'zh', 'ko'):
                 shrink_percent = float(os.environ.get("BUBBLE_RENDER_SHRINK", "0.24"))
                 text_draw_bounds = shrink_bbox(blk.bubble_xyxy, shrink_percent=shrink_percent)
                 bdx1, bdy1, bdx2, bdy2 = text_draw_bounds

@@ -31,6 +31,6 @@ ignore = ["S101", "B008"]
 
 [tool.ruff.lint.per-file-ignores]
 "tests/*" = ["S"]
-"app/emails.py" = ["E501"]  # message templates
+"mtapi/emails.py" = ["E501"]  # message templates
 "migrations/*" = ["E501"]
-"app/config.py" = ["S105"]  # dev-only defaults; Settings.check() refuses them in production
+"mtapi/config.py" = ["S105"]  # dev-only defaults; Settings.check() refuses them in production

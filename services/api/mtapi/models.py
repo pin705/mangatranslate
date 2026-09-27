@@ -318,6 +318,17 @@ class ProviderUsage(Base):
     created_at: Mapped[datetime] = _created()
 
 
+class WorkerHeartbeat(Base):
+    __tablename__ = "worker_heartbeats"
+
+    worker_id: Mapped[str] = mapped_column(String(128), primary_key=True)
+    queues: Mapped[str] = mapped_column(String(128))
+    started_at: Mapped[datetime] = _created()
+    last_seen_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
+    current_task_id: Mapped[int | None] = mapped_column(BigInteger)
+    tasks_done: Mapped[int] = mapped_column(Integer, default=0)
+
+
 class AppSetting(Base):
     __tablename__ = "app_settings"
 

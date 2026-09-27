@@ -189,7 +189,9 @@ def save_regions(page_id: uuid.UUID, body: RegionsIn, user: m.User = Depends(cur
     for r in body.regions:
         r.bbox = [min(r.bbox[0], page.width - 1), min(r.bbox[1], page.height - 1),
                   min(r.bbox[2], page.width), min(r.bbox[3], page.height)]
-    page.regions = [r.model_dump() for r in body.regions]
+    internal = {r.get("id"): r.get("engine") for r in page.regions or [] if r.get("engine")}
+    page.regions = [{**r.model_dump(), **({"engine": internal[r.id]} if r.id in internal else {})}
+                    for r in body.regions]
     page.version += 1
     # Typesetting-only change: re-render from the stored cleaned image; no OCR/translation/inpainting, no charge.
     queue.enqueue(db, "page.typeset", job_id=page.job_id, page_id=page.id, priority=10,
@@ -207,13 +209,14 @@ def regenerate(page_id: uuid.UUID, body: RegenerateIn, user: m.User = Depends(ve
         raise AppError(409, "CONFLICT", "This page is still processing.")
     page.version += 1
     kind = {"translation": "page.retranslate", "inpaint": "page.reinpaint", "typeset": "page.typeset"}[body.what]
+    queue_name = get_settings().model_queue if body.what == "inpaint" else "default"
     payload = {}
     if body.what != "typeset":
         cost = app_settings.credits_per_page(db, job.mode)
         key = f"regen:{page.id}:{page.version}"
         ledger.apply(db, user.id, -cost, "reserve", job_id=job.id, idempotency_key=key, reason=f"regenerate {body.what}")
         payload = {"reserved": cost, "reservation": key}
-    queue.enqueue(db, kind, job_id=job.id, page_id=page.id, payload=payload, priority=10,
+    queue.enqueue(db, kind, job_id=job.id, page_id=page.id, payload=payload, priority=10, queue=queue_name,
                   dedupe_key=f"{kind}:{page.id}:{page.version}")
     db.commit()
     return page_out(page, detail=True)

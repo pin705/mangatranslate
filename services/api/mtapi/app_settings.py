@@ -15,6 +15,7 @@ DEFAULTS: dict[str, int | float] = {
     "max_pages_per_job": 200,
     "max_concurrent_jobs": 3,
     "retention_days": 14,
+    "max_monthly_ai_spend_usd": 500,  # hard stop for provider calls; raise deliberately
 }
 
 SOURCE_LANGS = ["Chinese", "Korean", "Japanese"]
