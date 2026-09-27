@@ -1,0 +1,89 @@
+name: ci
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency: { group: "ci-${{ github.ref }}", cancel-in-progress: true }
+
+jobs:
+  api:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    defaults: { run: { working-directory: services/api } }
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv --python 3.12 && uv pip install -r pyproject.toml --extra dev
+      - run: .venv/bin/ruff check .
+      - run: .venv/bin/pytest -q
+      - name: dependency audit
+        run: uv pip install pip-audit && .venv/bin/pip-audit --strict --progress-spinner off -r <(uv pip compile pyproject.toml -q)
+
+  worker-unit:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: services/worker } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: uv venv --python 3.12 && uv pip install -r ../api/pyproject.toml --extra dev && uv pip install pillow requests
+      - run: .venv/bin/pytest -q tests/test_units.py
+
+  worker-e2e:
+    # Real detection/inpainting/typesetting models; remote AI calls go to a local stub (no credentials in CI).
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env: { POSTGRES_PASSWORD: postgres }
+        ports: ["5432:5432"]
+        options: --health-cmd pg_isready --health-interval 5s --health-retries 10
+    defaults: { run: { working-directory: services/worker } }
+    env:
+      DATABASE_URL: postgresql+psycopg://postgres:postgres@localhost:5432/postgres
+      QT_QPA_PLATFORM: offscreen
+      SEGMENTER: none   # the exported segmenter ONNX is not public; the model-free mask path is exercised instead
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl1 libegl1 libxkbcommon0 libfontconfig1 libdbus-1-3
+      - run: uv venv --python 3.12 && uv pip install -r requirements.txt && uv pip install -r ../api/pyproject.toml --extra dev && uv pip install 'moto[server]'
+      - uses: actions/cache@v4
+        with: { path: ~/.local/share/MangaTranslationWorker/models, key: "models-${{ hashFiles('services/worker/modules/utils/download.py') }}" }
+      - run: .venv/bin/python scripts/fetch_models.py
+      - name: sample pages (Pepper&Carrot, CC-BY 4.0)
+        run: |
+          mkdir -p ../../samples/cn/input
+          for p in 02 03; do curl -sSfL -o ../../samples/cn/input/E06P$p.jpg \
+            "https://www.peppercarrot.com/0_sources/ep06_The-Potion-Contest/low-res/cn_Pepper-and-Carrot_by-David-Revoy_E06P$p.jpg"; done
+      - run: .venv/bin/pytest -q tests/test_e2e.py
+
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: apps/web } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: pnpm, cache-dependency-path: apps/web/pnpm-lock.yaml }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm exec tsc --noEmit
+      - run: pnpm build
+      - run: pnpm audit --prod --audit-level high
+
+  images:
+    needs: [api, worker-unit, worker-e2e, web]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f infra/docker/api.Dockerfile -t api .
+      - run: docker build -f infra/docker/worker.Dockerfile --build-arg SEGMENTER=none -t worker .
+      - run: docker build -t web apps/web

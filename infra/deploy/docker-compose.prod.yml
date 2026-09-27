@@ -1,0 +1,52 @@
+# Production/staging on one VM. Postgres is a managed service (PITR backups) and storage is Cloudflare R2;
+# neither runs here. Scale workers with: docker compose -f docker-compose.prod.yml up -d --scale worker=3
+name: mangatranslate
+x-image: &img
+  restart: unless-stopped
+  env_file: .env
+  logging: { driver: json-file, options: { max-size: 20m, max-file: "5" } }
+
+services:
+  caddy:
+    <<: *img
+    image: caddy:2
+    ports: ["80:80", "443:443"]
+    volumes: [./Caddyfile:/etc/caddy/Caddyfile:ro, caddy_data:/data]
+    depends_on: [web, api]
+
+  migrate:
+    <<: *img
+    image: ghcr.io/${GITHUB_REPOSITORY}/api:${TAG}
+    command: ["alembic", "upgrade", "head"]
+    restart: "no"
+    profiles: [migrate]
+
+  api:
+    <<: *img
+    image: ghcr.io/${GITHUB_REPOSITORY}/api:${TAG}
+
+  worker:
+    <<: *img
+    image: ghcr.io/${GITHUB_REPOSITORY}/worker:${TAG}
+    environment: { WORKER_QUEUES: default }
+    stop_grace_period: 10m   # let the current page finish on deploys
+
+  # Enable on a GPU host (NVIDIA driver + container toolkit) and set MODEL_QUEUE=gpu in .env
+  worker-gpu:
+    <<: *img
+    image: ghcr.io/${GITHUB_REPOSITORY}/worker-gpu:${TAG}
+    environment: { WORKER_QUEUES: gpu, USE_GPU: "true" }
+    stop_grace_period: 10m
+    profiles: [gpu]
+    deploy:
+      resources:
+        reservations:
+          devices: [{ driver: nvidia, count: 1, capabilities: [gpu] }]
+
+  web:
+    <<: *img
+    image: ghcr.io/${GITHUB_REPOSITORY}/web:${TAG}
+    environment: { API_URL: "http://api:8000" }
+
+volumes:
+  caddy_data:

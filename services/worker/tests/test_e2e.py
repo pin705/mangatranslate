@@ -75,7 +75,8 @@ def stack():
         c.execute(f'DROP DATABASE IF EXISTS "{db_name}"')
         c.execute(f'CREATE DATABASE "{db_name}"')
     os.environ.update({
-        "DATABASE_URL": base.replace("/postgres?", f"/{db_name}?"), "APP_ENV": "test",
+        "DATABASE_URL": base.replace("/postgres?", f"/{db_name}?") if "/postgres?" in base
+        else base.rsplit("/", 1)[0] + f"/{db_name}", "APP_ENV": "test",
         "S3_ENDPOINT": f"http://127.0.0.1:{s3_port}", "S3_ACCESS_KEY": "test", "S3_SECRET_KEY": "test",
         "S3_BUCKET": "e2e", "S3_REGION": "us-east-1", "PAYMENT_PROVIDERS": "dev",
         "OPENAI_BASE_URL": f"http://127.0.0.1:{ai_port}/v1", "OCR_BASE_URL": f"http://127.0.0.1:{ai_port}/v1",

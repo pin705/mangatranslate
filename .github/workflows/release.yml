@@ -1,0 +1,58 @@
+# main → build and push images → deploy to staging automatically.
+# Production deploys only via "Run workflow" with deploy_production=true, gated by the GitHub "production"
+# environment (configure required reviewers there). See docs/DEPLOYMENT.md.
+name: release
+on:
+  workflow_run:
+    workflows: [ci]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      deploy_production: { description: "Deploy this commit to production", type: boolean, default: false }
+
+permissions: { contents: read, packages: write }
+
+env:
+  REGISTRY: ghcr.io/${{ github.repository }}
+  TAG: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  build:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with: { ref: "${{ env.TAG }}" }
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - run: |
+          docker build -f infra/docker/api.Dockerfile -t $REGISTRY/api:$TAG .
+          docker build -f infra/docker/worker.Dockerfile --build-arg SEGMENTER_ONNX_URL="${{ secrets.SEGMENTER_ONNX_URL }}" -t $REGISTRY/worker:$TAG .
+          docker build --build-arg ORT_PACKAGE="onnxruntime-gpu[cuda,cudnn]==1.24.4" -f infra/docker/worker.Dockerfile \
+            --build-arg SEGMENTER_ONNX_URL="${{ secrets.SEGMENTER_ONNX_URL }}" -t $REGISTRY/worker-gpu:$TAG .
+          docker build -t $REGISTRY/web:$TAG apps/web
+          for i in api worker worker-gpu web; do docker push $REGISTRY/$i:$TAG; done
+
+  staging:
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+    steps:
+      - name: deploy
+        env: { SSH_KEY: "${{ secrets.DEPLOY_SSH_KEY }}", HOST: "${{ secrets.DEPLOY_HOST }}" }
+        run: |
+          install -m 600 /dev/null key && echo "$SSH_KEY" > key
+          ssh -i key -o StrictHostKeyChecking=accept-new deploy@$HOST "cd /srv/mangatranslate && TAG=$TAG ./deploy.sh"
+
+  production:
+    needs: staging
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy_production
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: deploy
+        env: { SSH_KEY: "${{ secrets.DEPLOY_SSH_KEY }}", HOST: "${{ secrets.DEPLOY_HOST }}" }
+        run: |
+          install -m 600 /dev/null key && echo "$SSH_KEY" > key
+          ssh -i key -o StrictHostKeyChecking=accept-new deploy@$HOST "cd /srv/mangatranslate && TAG=$TAG ./deploy.sh"
