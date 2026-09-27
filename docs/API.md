@@ -25,7 +25,9 @@ Base path: `/api/v1`. JSON in and out. The live schema is served by FastAPI at `
 
 | Method | Path | Body | Response |
 |---|---|---|---|
-| POST | `/auth/register` | `{ email, password, locale?: "vi"\|"en" }` | 201 `User`, sets session cookie, sends verification email |
+| POST | `/auth/register` | `{ email, password, locale?: "vi"\|"en", ref?: "<referral code>" }` | 201 `User`, sets session cookie, sends verification email |
+| POST | `/auth/login-code/request` | `{ email, locale?, ref? }` | 204 always. E-mails a 6-digit code valid 10 min. Unknown e-mails get an account when the code is confirmed |
+| POST | `/auth/login-code/verify` | `{ email, code: "123456" }` | 200 `User`, sets session cookie, marks the e-mail verified (grants the signup bonus once). 400 `INVALID_TOKEN` for a wrong/expired code, 429 after 8 tries |
 | POST | `/auth/login` | `{ email, password }` | 200 `User`, sets session cookie |
 | POST | `/auth/logout` | – | 204, clears cookie |
 | POST | `/auth/verify-email` | `{ token }` | 200 `User` (grants the signup bonus once) |
@@ -50,11 +52,17 @@ Passwords: 10–128 characters. Login, register and reset endpoints are rate lim
 | POST | `/me/password` | `{ current_password, new_password }` | 204 (other sessions revoked) |
 | DELETE | `/me` | `{ password }` | 202, logs out, schedules deletion of files and personal data |
 
+## Referral
+
+| Method | Path | Response |
+|---|---|---|
+| GET | `/referral` | `{ code, link, invited, rewarded, reward_credits }`. Both sides get `reward_credits` once, when the invited user's **first payment** succeeds (sign-up alone earns nothing). |
+
 ## Public catalogue
 
 | Method | Path | Response |
 |---|---|---|
-| GET | `/products` | `[ { "code": "starter", "name": "Starter", "credits": 100, "price_amount": 49000, "currency": "VND" } ]` (active only, sorted) |
+| GET | `/products` | `[ { "code": "starter", "name": "Starter", "credits": 100, "bonus_credits": 30, "price_amount": 49000, "currency": "VND" } ]` (active only, sorted). A purchase grants `credits + bonus_credits`. |
 | GET | `/pricing` | `Pricing` |
 
 `Pricing`:
@@ -62,9 +70,11 @@ Passwords: 10–128 characters. Login, register and reset endpoints are rate lim
 {
   "credits_per_page": { "clean": 1, "overlay": 1 },
   "signup_bonus": 20,
-  "languages": { "source": ["Chinese", "Korean", "Japanese"], "target": ["Vietnamese", "English"] },
+  "languages": { "source": ["Chinese", "Korean", "Japanese", "English"], "target": ["Vietnamese", "English"] },
   "limits": { "max_pages_per_job": 200, "max_upload_mb": 200, "max_concurrent_jobs": 3 },
-  "retention_days": 14
+  "retention_days": 14,
+  "credit_megapixels": 2.0,
+  "referral_bonus": 50
 }
 ```
 
@@ -96,6 +106,7 @@ Accepted: `.png .jpg .jpeg .webp` images and `.zip .cbz` archives. Size limits c
 ```json
 {
   "title": "Chapter 12",
+  "series_id": null,
   "upload_ids": ["…"],
   "source_lang": "Chinese",
   "target_lang": "Vietnamese",
@@ -104,12 +115,16 @@ Accepted: `.png .jpg .jpeg .webp` images and `.zip .cbz` archives. Size limits c
 }
 ```
 `mode`: `clean` (remove text + inpaint) or `overlay` (cover text, cheaper and faster).
+`series_id` (optional): add the chapter to a series. The series' language pair is used and its glossary + the end of
+the previous chapter are given to the translator.
+**Page price** = `credits_per_page[mode]` × max(1, ceil(width × height / (`credit_megapixels` × 10⁶))). A normal
+1200×1660 page is 1 block; an 800×12000 webtoon strip is 5 blocks. Clients can estimate from image dimensions.
 Credits are reserved when the worker knows the page count (after archive extraction); if the balance is too low the job ends `FAILED` with `error.code = "INSUFFICIENT_CREDITS"` and nothing is charged. Only successfully rendered pages are charged; the rest of the reservation is released.
 
 `Job`:
 ```json
 {
-  "id": "…", "title": "Chapter 12", "status": "PROCESSING",
+  "id": "…", "series_id": null, "title": "Chapter 12", "status": "PROCESSING",
   "source_lang": "Chinese", "target_lang": "Vietnamese", "mode": "clean",
   "page_count": 32, "pages_done": 18, "pages_failed": 0, "pages_review": 1,
   "credits_reserved": 32, "credits_charged": 0,
@@ -132,6 +147,42 @@ Terminal: `COMPLETED` (all pages ok), `PARTIAL` (some pages failed, retryable), 
 ```
 `status` ∈ `pending, processing, ready, failed`; `stage` ∈ `none, prepared, translated, rendered`. Signed URLs expire after ~1 hour.
 `review_reasons` ∈ `LOW_OCR_CONFIDENCE, TRANSLATION_UNCERTAIN, TEXT_OVERFLOW, NO_TEXT_FOUND`.
+
+## Series (a.k.a. dictionary / glossary)
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/series` | – | `{ items: Series[], total }` most recently updated first |
+| POST | `/series` | `{ title, source_lang, target_lang }` | 201 `Series` |
+| GET | `/series/{id}` | – | `Series & { glossary: Term[], chapters: Job[] }` (chapters oldest first) |
+| PATCH | `/series/{id}` | `{ title?, glossary?: Term[] }` | `Series`. `glossary` replaces the whole list (≤1000 terms, duplicate sources dropped) |
+| DELETE | `/series/{id}` | – | 204. Chapters are kept, just ungrouped |
+
+`Series`: `{ id, title, source_lang, target_lang, chapters, terms, created_at, updated_at }`.
+`Term`: `{ source, target, auto }`. `auto: true` = learned by the translator from a chapter (shown so the user can
+confirm or fix). User terms (`auto: false`) always win over learned ones.
+
+## Sharing and reading
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/jobs/{id}/share` | – | `{ active: false }` or `{ active: true, token_hint, created_at, expires_at, views, url: null }` |
+| POST | `/jobs/{id}/share` | `{ days: 1..30 }` | 201 `{ active: true, url: "https://…/s/<token>", … }`. The URL is only returned here; creating a new link revokes the old one. Only finished chapters. |
+| DELETE | `/jobs/{id}/share` | – | 204 revoke |
+| GET | `/shared/{token}` | – (public, no auth) | `{ title, source_lang, target_lang, expires_at, pages: [ { index, width, height, url } ] }`, or 404 if expired/revoked. The page is a snapshot taken when the link was created. |
+
+The reader for the owner uses `GET /jobs/{id}/pages` (`source_url` + `output_url`) for original/translated comparison.
+
+## Notifications
+
+| Method | Path | Body | Response |
+|---|---|---|---|
+| GET | `/notifications?limit=20` | – | `{ items: [ { id, kind, data, read, created_at } ], unread }` |
+| POST | `/notifications/read` | `{ ids: [1,2] }` or `{ all: true }` | 204 |
+
+`kind` + `data`: `job_completed {job_id, title, done, total, status}`, `job_failed {job_id, title, …}`,
+`payment_succeeded {credits, amount, currency, payment_id}`, `payment_failed {payment_id}`, `credits_low {balance}`,
+`referral_reward {credits}`. The client renders and localizes the text.
 
 ## Editor
 
@@ -167,7 +218,7 @@ Terminal: `COMPLETED` (all pages ok), `PARTIAL` (some pages failed, retryable), 
 | GET | `/billing/payments/{id}` | – | `Payment` (poll on the return page) |
 | POST | `/billing/webhooks/{provider}` | provider payload | 200 — called by the payment provider only |
 
-Transaction `kind` ∈ `signup_bonus, purchase, reserve, release, refund, admin_grant, admin_revoke`. A job's net cost is `reserve + release`.
+Transaction `kind` ∈ `signup_bonus, purchase, reserve, release, refund, admin_grant, admin_revoke, referral`. A job's net cost is `reserve + release`.
 `Payment`: `{ id, product_code, amount, currency, credits, status, created_at, paid_at }`, `status` ∈ `pending, paid, cancelled, failed, refunded`.
 Credits are granted only by a verified provider webhook, never by the return URL.
 
@@ -189,8 +240,8 @@ Credits are granted only by a verified provider webhook, never by the return URL
 | POST | `/admin/payments/{id}/refund` | `{ reason, revoke_credits: true }` — records a refund made through the provider/bank |
 | GET | `/admin/providers` | → `[ { id, kind, name, base_url, model, enabled, priority, input_price_per_1m, output_price_per_1m, healthy } ]` |
 | PATCH | `/admin/providers/{id}` | `{ enabled?, priority?, model?, input_price_per_1m?, output_price_per_1m? }` |
-| GET / PATCH | `/admin/settings` | `{ credits_per_page_clean, credits_per_page_overlay, signup_bonus, usd_vnd_rate, max_pages_per_job, max_concurrent_jobs, retention_days }` |
-| GET / POST | `/admin/products` | `{ code, name, credits, price_amount, currency, active, sort_order }` |
+| GET / PATCH | `/admin/settings` | `{ credits_per_page_clean, credits_per_page_overlay, credit_megapixels, signup_bonus, referral_bonus, credits_low_threshold, usd_vnd_rate, max_pages_per_job, max_concurrent_jobs, retention_days, max_monthly_ai_spend_usd }` |
+| GET / POST | `/admin/products` | `{ code, name, credits, bonus_credits, price_amount, currency, active, sort_order }` |
 | PATCH | `/admin/products/{id}` | same fields, all optional |
 | GET | `/admin/audit?limit&offset` | → `{ items: [ { id, actor_email, action, target_type, target_id, metadata, ip, created_at } ], total }` |
 
