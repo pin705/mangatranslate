@@ -7,7 +7,7 @@ import logging
 import zipfile
 from datetime import timedelta
 
-from sqlalchemy import delete, select, text, update
+from sqlalchemy import delete, func, select, text, update
 
 import ai
 import ingest
@@ -171,6 +171,7 @@ def _store_render(page_id, key: str, overflow: list[str], expected_version: int 
             return  # a newer edit is queued; its own typeset task will write the output
         reasons = {r for r in p.review_reasons or [] if r != "TEXT_OVERFLOW"} | ({"TEXT_OVERFLOW"} if overflow else set())
         p.output_key, p.stage, p.status = key, "rendered", "ready"
+        p.updated_at = func.now()  # same key on re-render: bump explicitly so editors and archive freshness see it
         p.review_reasons, p.needs_review = sorted(reasons), bool(reasons)
         p.error_code = p.error_message = None
 

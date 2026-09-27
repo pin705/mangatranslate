@@ -256,12 +256,18 @@ export function qs(params: Record<string, string | number | undefined | null>): 
 }
 
 /** User-facing text for any thrown value: the API's safe message, else a translated fallback. */
-export function describeError(e: unknown, t: (key: "network" | "generic") => string): string {
+/** Any next-intl translator scoped to "errors" (client or server). */
+type ErrorsT = { (key: never): string; has(key: never): boolean };
+
+/** Localized text for an error: known codes use the UI language; unknown codes fall back to the API's message. */
+export function describeError(e: unknown, t: ErrorsT): string {
+  const tr = t as unknown as { (key: string): string; has(key: string): boolean };
   if (e instanceof ApiError) {
-    if (e.code === "NETWORK_ERROR") return t("network");
+    if (e.code === "NETWORK_ERROR") return tr("network");
+    if (tr.has(`codes.${e.code}`)) return tr(`codes.${e.code}`);
     if (e.message) return e.message;
   }
-  return t("generic");
+  return tr("generic");
 }
 
 export const errorCode = (e: unknown) => (e instanceof ApiError ? e.code : null);

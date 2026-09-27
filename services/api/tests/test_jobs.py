@@ -166,3 +166,10 @@ def test_admin_credit_adjustments_are_audited(client, db):
     r = client.patch("/api/v1/admin/settings", json={"credits_per_page_clean": 2})
     assert r.json()["credits_per_page_clean"] == 2
     assert client.get("/api/v1/pricing").json()["credits_per_page"]["clean"] == 2
+
+
+def test_download_name_is_header_safe():
+    from mtapi.storage import content_disposition
+    value = content_disposition("Chương 1.cbz")
+    value.encode("ascii")  # would raise for a raw Vietnamese name
+    assert 'filename="Chuong 1.cbz"' in value and "filename*=UTF-8''Ch%C6%B0%C6%A1ng%201.cbz" in value

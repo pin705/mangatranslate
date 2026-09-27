@@ -174,7 +174,9 @@ def test_full_chapter(stack):
     assert r.status_code == 202
     stale = client.put(f"/api/v1/pages/{detail['id']}/regions", json={"regions": regions, "version": detail["version"]})
     assert stale.status_code == 409
+    before = client.get(f"/api/v1/pages/{detail['id']}").json()["updated_at"]
     assert drain() == ["page.typeset"]
+    assert client.get(f"/api/v1/pages/{detail['id']}").json()["updated_at"] != before  # clients can see the re-render
     assert len(StubAI.calls) == calls_before and client.get("/api/v1/credits").json()["balance"] == 18
     edited = client.get(f"/api/v1/pages/{detail['id']}").json()
     assert edited["regions"][0]["translation"] == "Đã sửa tay"

@@ -11,7 +11,9 @@ Job data is deleted by the app when a job expires (system.cleanup); a bucket rul
 retention is the backstop. See docs/OPERATIONS.md.
 """
 
+import unicodedata
 from functools import lru_cache
+from urllib.parse import quote
 
 import boto3
 from botocore.config import Config
@@ -60,8 +62,14 @@ def presign_get(key: str | None, ttl: int = 3600, download_name: str | None = No
         return None
     params = {"Bucket": bucket(), "Key": key}
     if download_name:
-        params["ResponseContentDisposition"] = f'attachment; filename="{download_name}"'
+        params["ResponseContentDisposition"] = content_disposition(download_name)
     return signing_client().generate_presigned_url("get_object", Params=params, ExpiresIn=ttl)
+
+
+def content_disposition(name: str) -> str:
+    """RFC 6266: headers must be ASCII, so send an ASCII fallback plus the UTF-8 name ("Chương 1.cbz")."""
+    ascii_name = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode().replace('"', "") or "download"
+    return f"attachment; filename=\"{ascii_name}\"; filename*=UTF-8''{quote(name)}"
 
 
 def head(key: str) -> dict | None:

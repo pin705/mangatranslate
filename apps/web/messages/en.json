@@ -14,7 +14,28 @@
     "title": "Something went wrong",
     "generic": "Something went wrong. Please try again.",
     "network": "We couldn't reach the server. Check your connection and try again.",
-    "retry": "Try again"
+    "retry": "Try again",
+    "codes": {
+      "INSUFFICIENT_CREDITS": "Not enough credits. Buy more to continue.",
+      "EMAIL_NOT_VERIFIED": "Please verify your e-mail address first.",
+      "INVALID_CREDENTIALS": "Wrong e-mail or password.",
+      "ACCOUNT_SUSPENDED": "Your account is suspended. Contact support.",
+      "RATE_LIMITED": "Too many attempts. Please wait a moment and try again.",
+      "INVALID_TOKEN": "This link is invalid or has expired.",
+      "UPLOAD_INVALID": "Invalid file. Only PNG, JPG, WebP, ZIP and CBZ are supported.",
+      "UPLOAD_MISSING": "Some files did not finish uploading. Please upload them again.",
+      "LIMIT_EXCEEDED": "This exceeds the allowed limit.",
+      "TOO_MANY_PAGES": "This chapter has more pages than allowed.",
+      "NO_PAGES": "No images were found in the upload.",
+      "ALL_PAGES_FAILED": "Something went wrong processing this chapter. You can retry.",
+      "PAGE_FAILED": "Something went wrong processing this page. You can retry it.",
+      "CONFLICT": "This changed in the meantime. Reload and try again.",
+      "NOT_FOUND": "Not found.",
+      "FORBIDDEN": "You do not have access to this.",
+      "UNAUTHENTICATED": "Please log in.",
+      "VALIDATION_ERROR": "Some fields are invalid.",
+      "PAYMENT_PROVIDER_ERROR": "The payment provider is unavailable. Please try again."
+    }
   },
   "nav": {
     "skip": "Skip to content",

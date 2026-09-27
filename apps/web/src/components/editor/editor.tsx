@@ -768,9 +768,11 @@ function RegionForm({
         <p className="rounded-md bg-muted p-2 text-sm whitespace-pre-wrap" lang="und">
           {region.text || "—"}
         </p>
-        <span className="text-xs text-muted-foreground">
-          {t("confidence", { pct: Math.round((region.confidence ?? 0) * 100) })}
-        </span>
+        {region.confidence != null && (
+          <span className="text-xs text-muted-foreground">
+            {t("confidence", { pct: Math.round(region.confidence * 100) })}
+          </span>
+        )}
       </div>
       <div className="grid gap-1.5">
         <Label htmlFor="rf-translation">{t("translation")}</Label>

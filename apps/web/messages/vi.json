@@ -14,7 +14,28 @@
     "title": "Đã xảy ra lỗi",
     "generic": "Đã xảy ra lỗi. Vui lòng thử lại.",
     "network": "Không thể kết nối tới máy chủ. Hãy kiểm tra kết nối mạng và thử lại.",
-    "retry": "Thử lại"
+    "retry": "Thử lại",
+    "codes": {
+      "INSUFFICIENT_CREDITS": "Không đủ credit. Hãy mua thêm để tiếp tục.",
+      "EMAIL_NOT_VERIFIED": "Vui lòng xác nhận email trước.",
+      "INVALID_CREDENTIALS": "Email hoặc mật khẩu không đúng.",
+      "ACCOUNT_SUSPENDED": "Tài khoản của bạn đang bị tạm khóa. Hãy liên hệ hỗ trợ.",
+      "RATE_LIMITED": "Bạn thao tác quá nhanh. Vui lòng đợi một chút rồi thử lại.",
+      "INVALID_TOKEN": "Liên kết không hợp lệ hoặc đã hết hạn.",
+      "UPLOAD_INVALID": "Tệp không hợp lệ. Chỉ hỗ trợ PNG, JPG, WebP, ZIP và CBZ.",
+      "UPLOAD_MISSING": "Một số tệp chưa tải lên xong. Vui lòng tải lại.",
+      "LIMIT_EXCEEDED": "Vượt quá giới hạn cho phép.",
+      "TOO_MANY_PAGES": "Chương này có nhiều trang hơn mức cho phép.",
+      "NO_PAGES": "Không tìm thấy ảnh nào trong tệp tải lên.",
+      "ALL_PAGES_FAILED": "Đã có lỗi khi xử lý chương này. Bạn có thể thử lại.",
+      "PAGE_FAILED": "Đã có lỗi khi xử lý trang này. Bạn có thể thử lại.",
+      "CONFLICT": "Dữ liệu đã thay đổi. Hãy tải lại trang.",
+      "NOT_FOUND": "Không tìm thấy.",
+      "FORBIDDEN": "Bạn không có quyền thực hiện thao tác này.",
+      "UNAUTHENTICATED": "Vui lòng đăng nhập.",
+      "VALIDATION_ERROR": "Một số trường chưa hợp lệ.",
+      "PAYMENT_PROVIDER_ERROR": "Cổng thanh toán đang gián đoạn. Vui lòng thử lại sau."
+    }
   },
   "nav": {
     "skip": "Chuyển đến nội dung chính",
