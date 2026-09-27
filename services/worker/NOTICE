@@ -1,0 +1,8 @@
+This directory contains code derived from:
+
+- luxivint/ai-manga-translator — Apache License 2.0
+  https://github.com/luxivint/ai-manga-translator @ 74a85b0978a3e9c87147531ea9af7e49f99f5987
+- ogkalu2/comic-translate — Apache License 2.0 (upstream of the above; local OCR engines ported from it)
+  https://github.com/ogkalu2/comic-translate @ 8977b91a4f7a40c3917c5a268e9e7d78e1d818da
+
+Files have been modified. See git history for changes.
