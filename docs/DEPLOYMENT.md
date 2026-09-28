@@ -36,7 +36,10 @@ Never reuse production credentials in local or staging.
 7. **VM**: create user `deploy`, copy `infra/deploy/*` to `/srv/mangatranslate/`, create `.env` from
    `.env.example` (`AUTH_SECRET=$(openssl rand -hex 32)`), and `docker login ghcr.io`.
 8. **GitHub**: environments `staging` and `production` (add required reviewers to production) with secrets
-   `DEPLOY_SSH_KEY`, `DEPLOY_HOST`; repository secret `SEGMENTER_ONNX_URL`.
+   `DEPLOY_SSH_KEY`, `DEPLOY_HOST`; repository secret `SEGMENTER_ONNX_URL`. Deploys are opt-in: set the
+   repository variable `DEPLOY_STAGING=true` once the staging environment is configured. Without
+   `SEGMENTER_ONNX_URL`, published worker images are built with the model-free text mask (`SEGMENTER=none`,
+   see docs/MODEL_LICENSES.md).
 9. First deploy: `TAG=<sha> ./deploy.sh`, then create the first admin:
    ```sql
    UPDATE users SET role = 'SUPER_ADMIN' WHERE email = 'you@example.com';

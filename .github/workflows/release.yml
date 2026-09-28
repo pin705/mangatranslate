@@ -21,6 +21,10 @@ jobs:
   build:
     if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    env:
+      # The exported segmenter ONNX is not distributed (see docs/MODEL_LICENSES.md). Without the private
+      # SEGMENTER_ONNX_URL secret, public images are built with the model-free text mask (SEGMENTER=none).
+      WORKER_SEGMENTER_ARGS: ${{ secrets.SEGMENTER_ONNX_URL != '' && format('--build-arg SEGMENTER_ONNX_URL={0}', secrets.SEGMENTER_ONNX_URL) || '--build-arg SEGMENTER=none' }}
     steps:
       - uses: actions/checkout@v4
         with: { ref: "${{ env.TAG }}" }
@@ -28,14 +32,17 @@ jobs:
         with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
       - run: |
           docker build -f infra/docker/api.Dockerfile -t $REGISTRY/api:$TAG .
-          docker build -f infra/docker/worker.Dockerfile --build-arg SEGMENTER_ONNX_URL="${{ secrets.SEGMENTER_ONNX_URL }}" -t $REGISTRY/worker:$TAG .
+          docker build -f infra/docker/worker.Dockerfile $WORKER_SEGMENTER_ARGS -t $REGISTRY/worker:$TAG .
           docker build --build-arg ORT_PACKAGE="onnxruntime-gpu[cuda,cudnn]==1.24.4" -f infra/docker/worker.Dockerfile \
-            --build-arg SEGMENTER_ONNX_URL="${{ secrets.SEGMENTER_ONNX_URL }}" -t $REGISTRY/worker-gpu:$TAG .
+            $WORKER_SEGMENTER_ARGS -t $REGISTRY/worker-gpu:$TAG .
           docker build --build-arg API_URL=http://api:8000 --build-arg NEXT_PUBLIC_SITE_URL="${{ vars.SITE_URL }}" -t $REGISTRY/web:$TAG apps/web
           for i in api worker worker-gpu web; do docker push $REGISTRY/$i:$TAG; done
 
   staging:
     needs: build
+    # Opt-in: set the repo variable DEPLOY_STAGING=true plus the staging environment secrets
+    # (DEPLOY_SSH_KEY, DEPLOY_HOST) to enable automatic deploys. Left off on a fresh public repo.
+    if: vars.DEPLOY_STAGING == 'true'
     runs-on: ubuntu-latest
     environment: staging
     steps:
