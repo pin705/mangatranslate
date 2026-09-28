@@ -1,7 +1,7 @@
 # Security
 
-What is implemented, where, and what is still open. Report vulnerabilities to the security contact in
-`/copyright` (placeholder until the legal pages are final).
+What is implemented, where, and what is still open. Report vulnerabilities privately — see the repository's
+[SECURITY.md](../SECURITY.md) (GitHub private vulnerability reporting), never a public issue.
 
 ## Identity and sessions (`mtapi/security.py`, `routers/auth.py`)
 

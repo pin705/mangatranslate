@@ -1,0 +1,41 @@
+name: Bug report
+description: Something is broken or behaves differently from the docs
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug. Please fill in the details below — reproduction steps are the
+        most important part. Security vulnerabilities must not be reported here; see [SECURITY.md](../blob/main/SECURITY.md).
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - "apps/web (Next.js UI)"
+        - "services/api (FastAPI)"
+        - "services/worker (translation pipeline)"
+        - "infra (Docker / compose / deploy)"
+        - "docs"
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, and what you expected instead. Screenshots welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Commit/branch, OS, how you run it (local compose / per-service / your deployment).
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      description: Paste the relevant API/worker/web console output. Redact tokens and personal data.
+      render: shell

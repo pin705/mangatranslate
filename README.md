@@ -1,5 +1,8 @@
 # MangaTranslate AI
 
+[![CI](https://github.com/pin705/zytrans/actions/workflows/ci.yml/badge.svg)](https://github.com/pin705/zytrans/actions/workflows/ci.yml)
+[![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
+
 Upload manga / manhwa / manhua pages and get clean translated pages back (Chinese, Korean, Japanese → Vietnamese,
 English). The web app lets users upload a chapter, follow its progress, fix any page in a browser editor and
 download the result as ZIP or CBZ. Credits are bought with VietQR (payOS).
@@ -50,7 +53,19 @@ cd services/worker && scripts/try_samples.sh          # uses OPENAI_API_KEY / OP
 [Disaster recovery](docs/DISASTER_RECOVERY.md) · [Third-party licences](docs/THIRD_PARTY_LICENSES.md) ·
 [Models](docs/MODEL_LICENSES.md) · [Status and launch plan](docs/IMPLEMENTATION_PLAN.md)
 
+## Contributing
+
+Contributions are welcome — see [CONTRIBUTING.md](CONTRIBUTING.md) for the dev setup, test commands and PR
+conventions. By participating you agree to the [Code of Conduct](CODE_OF_CONDUCT.md). Security issues are not
+reported through public issues — see [SECURITY.md](SECURITY.md).
+
 ## Licence
 
-Proprietary. `services/worker` contains Apache-2.0 code from luxivint/ai-manga-translator and ogkalu2/comic-translate
-(see `services/worker/LICENSE` and `NOTICE`).
+Released under the [GNU AGPL-3.0](LICENSE). If you run a modified version as a network service, you must offer
+your users the source of your modified version (§13).
+
+Third-party components keep their own licences: `services/worker` contains Apache-2.0 code from
+luxivint/ai-manga-translator and ogkalu2/comic-translate (see `services/worker/LICENSE` and `NOTICE`). Model
+weights, fonts and AI APIs have their own terms — read
+[docs/MODEL_LICENSES.md](docs/MODEL_LICENSES.md) and [docs/THIRD_PARTY_LICENSES.md](docs/THIRD_PARTY_LICENSES.md)
+before redistributing them.
