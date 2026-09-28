@@ -1,4 +1,4 @@
-mahotas>=1.4.18
+mahotas>=1.4.19
 boto3>=1.34.0
 pillow>=11.0.0
 psycopg2-binary>=2.9.9
