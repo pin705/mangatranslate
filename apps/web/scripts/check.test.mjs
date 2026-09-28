@@ -2,7 +2,7 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { checkFile, contentType, estimateCredits, parseGlossary } from "../src/lib/upload-rules.ts";
+import { checkFile, cleanRef, contentType, estimateCredits, pageBlocks, pageCredits, parseGlossary } from "../src/lib/upload-rules.ts";
 
 test("glossary parsing", () => {
   const { entries, invalid } = parseGlossary("师姐 = sư tỷ\n\n bad line \nA=B=C\n= x\n");
@@ -17,6 +17,22 @@ test("file checks and estimate", () => {
   assert.equal(checkFile("x.jpg", 0, 1), "empty");
   assert.equal(contentType("ch.cbz"), "application/vnd.comicbook+zip");
   assert.deepEqual(estimateCredits(["a.jpg", "b.webp", "c.zip"], 2), { images: 2, credits: 4, hasArchives: true });
+});
+
+test("pixel-area pricing matches docs/API.md examples", () => {
+  assert.equal(pageBlocks(1200, 1660, 2), 1); // normal page
+  assert.equal(pageBlocks(800, 12000, 2), 5); // webtoon strip
+  assert.equal(pageBlocks(1000, 2000, 2), 1); // exactly one block
+  assert.equal(pageBlocks(1000, 2001, 2), 2);
+  assert.equal(pageBlocks(0, 0, 2), 1); // unknown size never prices at 0
+  assert.equal(pageCredits(800, 12000, 2, 2), 10);
+});
+
+test("referral code sanitising", () => {
+  assert.equal(cleanRef("AbC-12_x"), "AbC-12_x");
+  assert.equal(cleanRef("x".repeat(17)), undefined);
+  assert.equal(cleanRef("a b"), undefined);
+  assert.equal(cleanRef(null), undefined);
 });
 
 test("vi and en messages have the same keys", () => {

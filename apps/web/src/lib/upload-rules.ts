@@ -56,3 +56,16 @@ export function estimateCredits(names: string[], perPage: number) {
   const images = names.filter(isImage).length;
   return { images, credits: images * perPage, hasArchives: names.length > images };
 }
+
+/** Pricing blocks for one page: max(1, ceil(w·h / (mp·10⁶))) — docs/API.md "Page price". */
+export function pageBlocks(width: number, height: number, megapixels: number): number {
+  if (!(width > 0 && height > 0 && megapixels > 0)) return 1;
+  return Math.max(1, Math.ceil((width * height) / (megapixels * 1e6)));
+}
+
+/** Credits for one page = rate × blocks. */
+export const pageCredits = (width: number, height: number, rate: number, megapixels: number) =>
+  rate * pageBlocks(width, height, megapixels);
+
+/** Referral codes are short and URL-safe (API accepts ≤ 16 chars); anything else is dropped. */
+export const cleanRef = (v: string | null | undefined) => (v && /^[A-Za-z0-9_-]{1,16}$/.test(v) ? v : undefined);

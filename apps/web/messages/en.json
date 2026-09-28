@@ -616,7 +616,8 @@
     "release": "Released",
     "refund": "Refund",
     "admin_grant": "Added by support",
-    "admin_revoke": "Removed by support"
+    "admin_revoke": "Removed by support",
+    "referral": "Referral bonus"
   },
   "userStatus": {
     "active": "Active",
@@ -933,7 +934,11 @@
         "usd_vnd_rate": "USD → VND rate",
         "max_pages_per_job": "Max pages per job",
         "max_concurrent_jobs": "Max concurrent jobs",
-        "retention_days": "Retention (days)"
+        "retention_days": "Retention (days)",
+        "credit_megapixels": "Megapixels per page-credit",
+        "referral_bonus": "Referral bonus (credits)",
+        "credits_low_threshold": "Low-credit warning threshold",
+        "max_monthly_ai_spend_usd": "Max monthly AI spend (USD)"
       },
       "products": "Credit packs",
       "noProducts": "No credit packs yet.",

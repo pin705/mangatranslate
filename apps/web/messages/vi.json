@@ -616,7 +616,8 @@
     "release": "Hoàn lại",
     "refund": "Hoàn tiền",
     "admin_grant": "Hỗ trợ viên cộng",
-    "admin_revoke": "Hỗ trợ viên trừ"
+    "admin_revoke": "Hỗ trợ viên trừ",
+    "referral": "Thưởng giới thiệu"
   },
   "userStatus": {
     "active": "Đang hoạt động",
@@ -933,7 +934,11 @@
         "usd_vnd_rate": "Tỷ giá USD → VND",
         "max_pages_per_job": "Số trang tối đa mỗi tác vụ",
         "max_concurrent_jobs": "Số tác vụ chạy đồng thời tối đa",
-        "retention_days": "Thời gian lưu trữ (ngày)"
+        "retention_days": "Thời gian lưu trữ (ngày)",
+        "credit_megapixels": "Megapixel mỗi credit trang",
+        "referral_bonus": "Thưởng giới thiệu (credit)",
+        "credits_low_threshold": "Ngưỡng cảnh báo credit thấp",
+        "max_monthly_ai_spend_usd": "Chi tiêu AI tối đa mỗi tháng (USD)"
       },
       "products": "Gói credit",
       "noProducts": "Chưa có gói credit nào.",

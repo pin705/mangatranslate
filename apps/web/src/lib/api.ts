@@ -21,6 +21,8 @@ export interface Product {
   code: string;
   name: string;
   credits: number;
+  /** Extra promotional credits; a purchase grants credits + bonus_credits. */
+  bonus_credits: number;
   price_amount: number;
   currency: string;
 }
@@ -31,6 +33,9 @@ export interface Pricing {
   languages: { source: string[]; target: string[] };
   limits: { max_pages_per_job: number; max_upload_mb: number; max_concurrent_jobs: number };
   retention_days: number;
+  /** Size of one pricing block; see pageBlocks() in upload-rules.ts. */
+  credit_megapixels: number;
+  referral_bonus: number;
 }
 
 export interface UploadTicket {
@@ -57,6 +62,7 @@ export interface ErrorBody {
 
 export interface Job {
   id: string;
+  series_id: string | null;
   title: string;
   status: JobStatus;
   source_lang: string;
@@ -117,7 +123,8 @@ export interface PageDetail extends PageSummary {
   version: number;
 }
 
-export type CreditKind = "signup_bonus" | "purchase" | "reserve" | "release" | "refund" | "admin_grant" | "admin_revoke";
+export type CreditKind =
+  | "signup_bonus" | "purchase" | "reserve" | "release" | "refund" | "admin_grant" | "admin_revoke" | "referral";
 export interface CreditTransaction {
   id: string | number;
   amount: number;
@@ -137,6 +144,54 @@ export interface Payment {
   status: PaymentStatus;
   created_at: string;
   paid_at: string | null;
+}
+
+export interface Term {
+  source: string;
+  target: string;
+  /** Learned by the translator from a chapter; user terms (auto: false) always win. */
+  auto: boolean;
+}
+export interface Series {
+  id: string;
+  title: string;
+  source_lang: string;
+  target_lang: string;
+  chapters: number;
+  terms: number;
+  created_at: string;
+  updated_at: string;
+}
+/** GET /series/{id}: in the detail response `chapters` is the chapter list (oldest first), not a count. */
+export type SeriesDetail = Omit<Series, "chapters"> & { glossary: Term[]; chapters: Job[] };
+
+export type ShareState =
+  | { active: false }
+  | { active: true; token_hint: string; created_at: string; expires_at: string; views: number; url: string | null };
+export interface SharedChapter {
+  title: string;
+  source_lang: string;
+  target_lang: string;
+  expires_at: string;
+  pages: { index: number; width: number; height: number; url: string }[];
+}
+
+export type NotificationKind =
+  | "job_completed" | "job_failed" | "payment_succeeded" | "payment_failed" | "credits_low" | "referral_reward";
+export interface AppNotification {
+  id: number;
+  kind: NotificationKind | string;
+  data: Record<string, unknown>;
+  read: boolean;
+  created_at: string;
+}
+
+export interface Referral {
+  code: string;
+  link: string;
+  invited: number;
+  rewarded: number;
+  reward_credits: number;
 }
 
 export interface List<T> {
@@ -184,7 +239,11 @@ export interface AiProvider {
 export interface AppSettings {
   credits_per_page_clean: number;
   credits_per_page_overlay: number;
+  credit_megapixels: number;
   signup_bonus: number;
+  referral_bonus: number;
+  credits_low_threshold: number;
+  max_monthly_ai_spend_usd: number;
   usd_vnd_rate: number;
   max_pages_per_job: number;
   max_concurrent_jobs: number;
