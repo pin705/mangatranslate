@@ -1,6 +1,6 @@
 # MangaTranslate AI
 
-[![CI](https://github.com/pin705/zytrans/actions/workflows/ci.yml/badge.svg)](https://github.com/pin705/zytrans/actions/workflows/ci.yml)
+[![CI](https://github.com/pin705/mangatranslate/actions/workflows/ci.yml/badge.svg)](https://github.com/pin705/mangatranslate/actions/workflows/ci.yml)
 [![License: AGPL-3.0](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 
 Upload manga / manhwa / manhua pages and get clean translated pages back (Chinese, Korean, Japanese → Vietnamese,
@@ -14,6 +14,15 @@ services/worker   queue worker + translation engine (detect → OCR → translat
 infra             Dockerfiles, local compose, production compose + deploy script
 docs              architecture, API, billing, security, worker, deployment, operations, DR, licences
 ```
+
+## Before → after
+
+Pages from [Pepper&Carrot](https://www.peppercarrot.com) episode 6, community translations (CC-BY 4.0, David
+Revoy) — the original upload on top, the pipeline's cleaned and typeset result below, as shown in the web reader.
+
+| Japanese | Chinese | Korean |
+|---|---|---|
+| <img src="apps/web/public/showcase/ja-original.jpg" width="270" alt="Japanese page, original"/><img src="apps/web/public/showcase/ja-clean.jpg" width="270" alt="Japanese page, translated"/> | <img src="apps/web/public/showcase/cn-original.jpg" width="270" alt="Chinese page, original"/><img src="apps/web/public/showcase/cn-clean.jpg" width="270" alt="Chinese page, translated"/> | <img src="apps/web/public/showcase/kr-original.jpg" width="270" alt="Korean page, original"/><img src="apps/web/public/showcase/kr-clean.jpg" width="270" alt="Korean page, translated"/> |
 
 ## Run locally
 
