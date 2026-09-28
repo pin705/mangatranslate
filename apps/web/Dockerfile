@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Build context: apps/web
-FROM node:24-alpine AS base
+FROM node:26-alpine AS base
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm install -g pnpm@11.24.0
 WORKDIR /app
@@ -18,7 +18,7 @@ COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN pnpm build
 
-FROM node:24-alpine AS runner
+FROM node:26-alpine AS runner
 WORKDIR /app
 ENV NODE_ENV=production NEXT_TELEMETRY_DISABLED=1 PORT=3000 HOSTNAME=0.0.0.0
 RUN addgroup -S -g 1001 nodejs && adduser -S -u 1001 -G nodejs nextjs
