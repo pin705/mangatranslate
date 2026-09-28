@@ -3,7 +3,7 @@ name = "mangatranslate-api"
 version = "0.1.0"
 requires-python = ">=3.12"
 dependencies = [
-  "fastapi>=0.141",
+  "fastapi>=0.141.1",
   "uvicorn[standard]>=0.30",
   "sqlalchemy>=2.0.36",
   "psycopg[binary]>=3.2",
