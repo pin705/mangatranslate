@@ -1,5 +1,5 @@
 # Build from the repo root: docker build -f infra/docker/api.Dockerfile -t mangatranslate-api .
-FROM python:3.12-slim
+FROM python:3.14-slim
 ENV PYTHONUNBUFFERED=1 PYTHONDONTWRITEBYTECODE=1 PIP_NO_CACHE_DIR=1
 RUN useradd --system --uid 10001 --home /srv app
 WORKDIR /srv/api
