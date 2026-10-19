@@ -1,7 +1,7 @@
 # Build from the repo root:
 #   CPU: docker build -f infra/docker/worker.Dockerfile --build-arg SEGMENTER_ONNX_URL=https://… -t mangatranslate-worker .
 #   GPU: add --build-arg ORT_PACKAGE="onnxruntime-gpu[cuda,cudnn]==1.24.4" and run with --gpus all, USE_GPU=true
-FROM python:3.12-slim
+FROM python:3.14-slim
 ARG ORT_PACKAGE=onnxruntime
 ARG SEGMENTER_ONNX_URL=""
 # "none" = model-free text mask (detector boxes + Otsu), for local builds without the exported segmenter
